@@ -1,30 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using HaiFeng.Properties;
+using static HaiFeng.ctp_quote;
 
 namespace HaiFeng
 {
 	public class CTPQuote : Quote
 	{
 		ctp_quote _q = null;
+		private readonly List<Delegate> _listDele = new List<Delegate>();
 
-		public CTPQuote(string pDllFile)
+		public CTPQuote()
 		{
-			_q = new ctp_quote(pDllFile);
+			Directory.CreateDirectory("./ctp_dll");
+			string[] files = { "./ctp_dll/thostmduserapi.dll", "./ctp_dll/ctp_quote.dll" };
+			object[] objs = { Resources.thostmduserapi, Resources.ctp_quote };
+
+			for (int i = 0; i < files.Length; ++i)
+			{
+				var bytes = (byte[])objs[i];
+				if (!File.Exists(files[i]) || bytes.Length != new FileInfo(files[i]).Length)
+					File.WriteAllBytes(files[i], bytes);
+			}
+			_q = new ctp_quote("./ctp_dll/ctp_quote.dll");
 			SetCallBack();
 		}
 
+		Delegate AddDele(Delegate d) { _listDele.Add(d); return d; }
+
 		void SetCallBack()
 		{
-			_q.SetOnFrontConnected(CTPOnFrontConnected);
-			_q.SetOnRspUserLogin(CTPOnRspUserLogin);
-			_q.SetOnFrontDisconnected(CTPOnFrontDisconnected);
-			_q.SetOnRspSubMarketData(CTPOnRspSubMarketData);
-			_q.SetOnRtnDepthMarketData(CTPOnRtnDepthMarketData);
-			_q.SetOnRspError(CTPOnRspError);
+			_q.SetOnFrontConnected((DeleOnFrontConnected)AddDele(new DeleOnFrontConnected(CTPOnFrontConnected)));
+			_q.SetOnRspUserLogin((DeleOnRspUserLogin)AddDele(new DeleOnRspUserLogin(CTPOnRspUserLogin)));
+			_q.SetOnFrontDisconnected((DeleOnFrontDisconnected)AddDele(new DeleOnFrontDisconnected(CTPOnFrontDisconnected)));
+			_q.SetOnRspSubMarketData((DeleOnRspSubMarketData)AddDele(new DeleOnRspSubMarketData(CTPOnRspSubMarketData)));
+			_q.SetOnRtnDepthMarketData((DeleOnRtnDepthMarketData)AddDele(new DeleOnRtnDepthMarketData(CTPOnRtnDepthMarketData)));
+			_q.SetOnRspError((DeleOnRspError)AddDele(new DeleOnRspError(CTPOnRspError)));
 		}
 
 		private void CTPOnRtnDepthMarketData(ref CThostFtdcDepthMarketDataField pDepthMarketData)
@@ -118,6 +134,7 @@ namespace HaiFeng
 
 		private void CTPOnFrontDisconnected(int nReason)
 		{
+			this.IsLogin = false;
 			_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = nReason });
 		}
 
@@ -132,7 +149,10 @@ namespace HaiFeng
 			if (pRspInfo.ErrorID != 0)
 				_q.SetOnFrontConnected(null);
 			else //正常登录时注册连接事件(后续自动重连时可自行登录)
+			{
+				this.IsLogin = true;
 				_q.SetOnFrontConnected(CTPOnFrontConnected);
+			}
 			_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = pRspInfo.ErrorID });
 		}
 
@@ -182,6 +202,12 @@ namespace HaiFeng
 
 		public override void ReqUserLogout()
 		{
+			this.IsLogin = false;
+			//上面的disconnect注销掉,需要主动调用此回调函数
+			_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = 0 });
+			//取消连接响应,避免重连后的再登录.
+			_q.SetOnFrontDisconnected(null);
+			_q.SetOnFrontConnected(null);
 			_q.Release();
 		}
 	}

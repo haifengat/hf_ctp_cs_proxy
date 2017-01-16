@@ -2,11 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using HaiFeng.Properties;
+using static HaiFeng.ctp_trade;
 
 namespace HaiFeng
 {
@@ -24,33 +27,47 @@ namespace HaiFeng
 		//用来处理成交先返回的情况:在order中重新调用onrtntrade
 		private readonly ConcurrentDictionary<string, List<CThostFtdcTradeField>> _sysidTrade = new ConcurrentDictionary<string, List<CThostFtdcTradeField>>();
 		private readonly Stopwatch _sw = new Stopwatch();
+		private readonly List<Delegate> _listDele = new List<Delegate>();
 
-		public CTPTrade(string pDllFile)
+		public CTPTrade()
 		{
-			_t = new ctp_trade(pDllFile);
+			//释放接口的C++相关文件
+			Directory.CreateDirectory("./ctp_dll");
+			string[] files = { "./ctp_dll/thosttraderapi.dll", "./ctp_dll/ctp_trade.dll" };
+			object[] objs = { Resources.thosttraderapi, Resources.ctp_trade };
+
+			for (int i = 0; i < files.Length; ++i)
+			{
+				var bytes = (byte[])objs[i];
+				if (!File.Exists(files[i]))// || bytes.Length != new FileInfo(files[i]).Length)
+					File.WriteAllBytes(files[i], bytes);
+			}
+			_t = new ctp_trade("./ctp_dll/ctp_trade.dll");
 			this.SetCallBack();
 		}
+
+		Delegate AddDele(Delegate d) { _listDele.Add(d); return d; }
 
 		//响应注册
 		void SetCallBack()
 		{
-			_t.SetOnFrontConnected(CTPOnFrontConnected);
-			_t.SetOnRspUserLogin(CTPOnRspUserLogin);
-			_t.SetOnRspSettlementInfoConfirm(CTPOnRspSettlementInfoConfirm);
-			_t.SetOnFrontDisconnected(CTPOnFrontDisconnected);
-			_t.SetOnRspQryInstrument(CTPOnRspQryInstrument);
-			_t.SetOnRspQryInvestorPosition(CTPOnRspQryInvestorPosition);
-			_t.SetOnRspQryTradingAccount(CTPOnRspQryTradingAccount);
-			_t.SetOnRspOrderInsert(CTPOnRspOrderInsert);
-			_t.SetOnErrRtnOrderInsert(CTPOnErrRtnOrderInsert);
-			_t.SetOnErrRtnOrderAction(CTPOnErrRtnOrderAction);
-			_t.SetOnRspOrderAction(CTPOnRspOrderAction);
-			_t.SetOnRtnOrder(CTPOnRtnOrder);
-			_t.SetOnRtnTrade(CTPOnRtnTrade);
-			_t.SetOnRtnInstrumentStatus(CTPOnRtnInstrumentStatus);
-			_t.SetOnRtnTradingNotice(CTPOnRtnTradingNotice);
-			_t.SetOnRspUserPasswordUpdate(CTPOnRspUserPasswordUpdate);
-			_t.SetOnRspError(CTPOnRspError);
+			_t.SetOnFrontConnected((DeleOnFrontConnected)AddDele(new DeleOnFrontConnected(CTPOnFrontConnected)));
+			_t.SetOnRspUserLogin((DeleOnRspUserLogin)AddDele(new DeleOnRspUserLogin(CTPOnRspUserLogin)));
+			_t.SetOnRspSettlementInfoConfirm((DeleOnRspSettlementInfoConfirm)AddDele(new DeleOnRspSettlementInfoConfirm(CTPOnRspSettlementInfoConfirm)));
+			_t.SetOnFrontDisconnected((DeleOnFrontDisconnected)AddDele(new DeleOnFrontDisconnected(CTPOnFrontDisconnected)));
+			_t.SetOnRspQryInstrument((DeleOnRspQryInstrument)AddDele(new DeleOnRspQryInstrument(CTPOnRspQryInstrument)));
+			_t.SetOnRspQryInvestorPosition((DeleOnRspQryInvestorPosition)AddDele(new DeleOnRspQryInvestorPosition(CTPOnRspQryInvestorPosition)));
+			_t.SetOnRspQryTradingAccount((DeleOnRspQryTradingAccount)AddDele(new DeleOnRspQryTradingAccount(CTPOnRspQryTradingAccount)));
+			_t.SetOnRspOrderInsert((DeleOnRspOrderInsert)AddDele(new DeleOnRspOrderInsert(CTPOnRspOrderInsert)));
+			_t.SetOnErrRtnOrderInsert((DeleOnErrRtnOrderInsert)AddDele(new DeleOnErrRtnOrderInsert(CTPOnErrRtnOrderInsert)));
+			_t.SetOnErrRtnOrderAction((DeleOnErrRtnOrderAction)AddDele(new DeleOnErrRtnOrderAction(CTPOnErrRtnOrderAction)));
+			_t.SetOnRspOrderAction((DeleOnRspOrderAction)AddDele(new DeleOnRspOrderAction(CTPOnRspOrderAction)));
+			_t.SetOnRtnOrder((DeleOnRtnOrder)AddDele(new DeleOnRtnOrder(CTPOnRtnOrder)));
+			_t.SetOnRtnTrade((DeleOnRtnTrade)AddDele(new DeleOnRtnTrade(CTPOnRtnTrade)));
+			_t.SetOnRtnInstrumentStatus((DeleOnRtnInstrumentStatus)AddDele(new DeleOnRtnInstrumentStatus(CTPOnRtnInstrumentStatus)));
+			_t.SetOnRtnTradingNotice((DeleOnRtnTradingNotice)AddDele(new DeleOnRtnTradingNotice(CTPOnRtnTradingNotice)));
+			_t.SetOnRspUserPasswordUpdate((DeleOnRspUserPasswordUpdate)AddDele(new DeleOnRspUserPasswordUpdate(CTPOnRspUserPasswordUpdate)));
+			_t.SetOnRspError((DeleOnRspError)AddDele(new DeleOnRspError(CTPOnRspError)));
 		}
 
 		private void CTPOnFrontConnected()
@@ -670,9 +687,13 @@ namespace HaiFeng
 
 		public override void ReqUserLogout()
 		{
+			this.IsLogin = false;
+			//上面的disconnect注销掉,需要主动调用此回调函数
+			_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = 0 });
 			//取消连接响应,避免重连后的再登录.
+			_t.SetOnFrontDisconnected(null);
 			_t.SetOnFrontConnected(null);
-			_t.ReqUserLogout(_broker, _investor);
+			_t.Release();
 		}
 
 		public override int ReqOrderAction(string pOrderId)

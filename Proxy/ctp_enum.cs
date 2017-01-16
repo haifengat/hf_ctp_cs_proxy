@@ -1,8 +1,17 @@
 
 public enum THOST_TE_RESUME_TYPE
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	THOST_TERT_RESTART = 0,
+	/// <summary>
+	/// 
+	/// </summary>
 	THOST_TERT_RESUME,
+	/// <summary>
+	/// 
+	/// </summary>
 	THOST_TERT_QUICK
 }
 		

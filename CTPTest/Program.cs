@@ -19,6 +19,10 @@ namespace HaiFeng
 			tq.Run();
 			Console.WriteLine("Press any key to continue . . . ");
 			Console.ReadKey(true);
+
+			tt.Release();
+			tq.Release();
+			Console.ReadKey(true);
 		}
 	}
 }

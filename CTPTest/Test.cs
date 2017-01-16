@@ -13,13 +13,18 @@ namespace HaiFeng
 		string _investor = "008105", _broker = "9999";
 		public TestQuote()
 		{
-			_q = new CTPQuote("./ctp_dll/ctp_quote.dll");
+			_q = new CTPQuote();
 
 			_q.OnFrontConnected += _q_OnFrontConnected;
 			_q.OnRspUserLogin += _q_OnRspUserLogin;
 			_q.OnRspUserLogout += _q_OnRspUserLogout;
 			_q.OnRtnTick += _q_OnRtnTick;
 			_q.OnRtnError += _q_OnRtnError;
+		}
+
+		public void Release()
+		{
+			_q.ReqUserLogout();
 		}
 
 		public void Run()
@@ -76,7 +81,12 @@ namespace HaiFeng
 
 		public TestTrade()
 		{
-			_t = new CTPTrade("./ctp_dll/ctp_trade.dll");
+			_t = new CTPTrade();
+		}
+
+		public void Release()
+		{
+			_t.ReqUserLogout();
 		}
 
 		void Log(string pMsg)
