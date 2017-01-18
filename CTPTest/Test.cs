@@ -97,6 +97,7 @@ namespace HaiFeng
 		public void Run()
 		{
 			_t.OnFrontConnected += _t_OnFrontConnected;
+			_t.OnRspUserLogout += _t_OnRspUserLogout;
 			_t.OnRspUserLogin += _t_OnRspUserLogin;
 			_t.OnRtnOrder += _t_OnRtnOrder;
 			_t.OnRtnTrade += _t_OnRtnTrade;
@@ -145,9 +146,9 @@ namespace HaiFeng
 			Log($"{pInstrumentStatus.InstrumentID}:{pInstrumentStatus.InstrumentStatus}");
 		}
 
-		private void OnFrontDisconnected(int nReason)
+		private void _t_OnRspUserLogout(object sender, IntEventArgs e)
 		{
-			Log("连接已断开");
+			Log("t: logout:" + e.Value);
 		}
 	}
 

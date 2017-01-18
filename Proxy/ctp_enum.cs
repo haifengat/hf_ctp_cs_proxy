@@ -1,17 +1,8 @@
 
 public enum THOST_TE_RESUME_TYPE
 {
-	/// <summary>
-	/// 
-	/// </summary>
 	THOST_TERT_RESTART = 0,
-	/// <summary>
-	/// 
-	/// </summary>
 	THOST_TERT_RESUME,
-	/// <summary>
-	/// 
-	/// </summary>
 	THOST_TERT_QUICK
 }
 		
@@ -660,14 +651,6 @@ public enum TThostFtdcProductClassType : byte
 	/// 现货期权
 	///</summary>
 	THOST_FTDC_PC_SpotOption = (byte)'6',
-	/// <summary>
-	/// 个股期权
-	///</summary>
-	THOST_FTDC_PC_ETFOption = (byte)'7',
-	/// <summary>
-	/// 证券
-	///</summary>
-	THOST_FTDC_PC_Stock = (byte)'8',
 }
 
 /// <summary>
@@ -802,10 +785,6 @@ public enum TThostFtdcHedgeFlagType : byte
 	///</summary>
 	THOST_FTDC_HF_Hedge = (byte)'3',
 	/// <summary>
-	/// 备兑
-	///</summary>
-	THOST_FTDC_HF_Covered = (byte)'4',
-	/// <summary>
 	/// 做市商
 	///</summary>
 	THOST_FTDC_HF_MarketMaker = (byte)'5',
@@ -922,10 +901,6 @@ public enum TThostFtdcOrderPriceTypeType : byte
 	/// 五档价
 	///</summary>
 	THOST_FTDC_OPT_FiveLevelPrice = (byte)'G',
-	/// <summary>
-	/// 本方最优价
-	///</summary>
-	THOST_FTDC_OPT_BestPriceThisSide = (byte)'H',
 }
 
 /// <summary>
@@ -1655,10 +1630,6 @@ public enum TThostFtdcTradeParamIDType : byte
 	/// 是否期货下单频率限制
 	///</summary>
 	THOST_FTDC_TPID_IsFutureOrderFreq = (byte)'C',
-	/// <summary>
-	/// 是否报单类型限制
-	///</summary>
-	THOST_FTDC_TPID_IsOrderTypeLimit = (byte)'D',
 	/// <summary>
 	/// 行权冻结是否计算盈利
 	///</summary>
@@ -3778,6 +3749,18 @@ public enum TThostFtdcFBTUserEventTypeType : byte
 	///</summary>
 	THOST_FTDC_FBTUET_SyncKey = (byte)'B',
 	/// <summary>
+	/// 预约开户
+	///</summary>
+	THOST_FTDC_FBTUET_ReserveOpenAccount = (byte)'C',
+	/// <summary>
+	/// 撤销预约开户
+	///</summary>
+	THOST_FTDC_FBTUET_CancelReserveOpenAccount = (byte)'D',
+	/// <summary>
+	/// 预约开户确认
+	///</summary>
+	THOST_FTDC_FBTUET_ReserveOpenAccountConfirm = (byte)'E',
+	/// <summary>
 	/// 其他
 	///</summary>
 	THOST_FTDC_FBTUET_Other = (byte)'Z',
@@ -4326,14 +4309,6 @@ public enum TThostFtdcExchangeIDTypeType : byte
 	/// 上海国际能源交易中心股份有限公司
 	///</summary>
 	THOST_FTDC_EIDT_INE = (byte)'N',
-	/// <summary>
-	/// 上海证券交易所
-	///</summary>
-	THOST_FTDC_EIDT_SSE = (byte)'A',
-	/// <summary>
-	/// 深圳证券交易所
-	///</summary>
-	THOST_FTDC_EIDT_SZSE = (byte)'E',
 }
 
 /// <summary>
@@ -6677,208 +6652,6 @@ public enum TThostFtdcCombDirectionType : byte
 }
 
 /// <summary>
-/// 锁定方向类型
-///</summary>
-public enum TThostFtdcLockTypeType : byte
-{
-	/// <summary>
-	/// 锁定
-	///</summary>
-	THOST_FTDC_LCKT_Lock = (byte)'1',
-	/// <summary>
-	/// 解锁
-	///</summary>
-	THOST_FTDC_LCKT_Unlock = (byte)'2',
-}
-
-/// <summary>
-/// 业务类型类型
-///</summary>
-public enum TThostFtdcBizTypeType : byte
-{
-	/// <summary>
-	/// 期货
-	///</summary>
-	THOST_FTDC_BZTP_Future = (byte)'1',
-	/// <summary>
-	/// 证券
-	///</summary>
-	THOST_FTDC_BZTP_Stock = (byte)'2',
-}
-
-/// <summary>
-/// 指定类型类型
-///</summary>
-public enum TThostFtdcDesignateTypeType : byte
-{
-	/// <summary>
-	/// 指定登记
-	///</summary>
-	THOST_FTDC_DSTP_Register = (byte)'1',
-	/// <summary>
-	/// 指定撤销
-	///</summary>
-	THOST_FTDC_DSTP_Cancel = (byte)'2',
-}
-
-/// <summary>
-/// 冻结原因类型
-///</summary>
-public enum TThostFtdcFreezeReasonTypeType : byte
-{
-	/// <summary>
-	/// 初始化
-	///</summary>
-	THOST_FTDC_FRTP_Init = (byte)'1',
-	/// <summary>
-	/// 锁定
-	///</summary>
-	THOST_FTDC_FRTP_Lock = (byte)'2',
-	/// <summary>
-	/// 执行
-	///</summary>
-	THOST_FTDC_FRTP_Exec = (byte)'3',
-	/// <summary>
-	/// 仓位校验
-	///</summary>
-	THOST_FTDC_FRTP_Check = (byte)'4',
-	/// <summary>
-	/// E+1日执行冻结
-	///</summary>
-	THOST_FTDC_FRTP_ExecFreeze = (byte)'5',
-}
-
-/// <summary>
-/// 冻结类型类型
-///</summary>
-public enum TThostFtdcFreezeTypeType : byte
-{
-	/// <summary>
-	/// 冻结
-	///</summary>
-	THOST_FTDC_FZTP_Freeze = (byte)'1',
-	/// <summary>
-	/// 解冻
-	///</summary>
-	THOST_FTDC_FZTP_Unfreeze = (byte)'2',
-	/// <summary>
-	/// 强制执行
-	///</summary>
-	THOST_FTDC_FZTP_Force = (byte)'3',
-}
-
-/// <summary>
-/// 交易系统类型类型
-///</summary>
-public enum TThostFtdcTradeSystemTypeType : byte
-{
-	/// <summary>
-	/// 未知系统
-	///</summary>
-	THOST_FTDC_TSTP_Unknow = (byte)'0',
-	/// <summary>
-	/// 期货系统
-	///</summary>
-	THOST_FTDC_TSTP_Future = (byte)'1',
-	/// <summary>
-	/// 个股系统
-	///</summary>
-	THOST_FTDC_TSTP_IShare = (byte)'2',
-}
-
-/// <summary>
-/// 证券处置方向类型
-///</summary>
-public enum TThostFtdcStockDisposalTypeType : byte
-{
-	/// <summary>
-	/// 划入经纪公司账户
-	///</summary>
-	THOST_FTDC_STPT_ToBroker = (byte)'1',
-	/// <summary>
-	/// 划入投资者账户
-	///</summary>
-	THOST_FTDC_STPT_ToInvestor = (byte)'2',
-}
-
-/// <summary>
-/// 证券处置状态类型
-///</summary>
-public enum TThostFtdcStockDisposalStatusType : byte
-{
-	/// <summary>
-	/// 已经提交
-	///</summary>
-	THOST_FTDC_SDPS_Submitted = (byte)'a',
-	/// <summary>
-	/// 已经接受
-	///</summary>
-	THOST_FTDC_SDPS_Accepted = (byte)'b',
-	/// <summary>
-	/// 已经被拒绝
-	///</summary>
-	THOST_FTDC_SDPS_Rejected = (byte)'c',
-	/// <summary>
-	/// 已经被撤销
-	///</summary>
-	THOST_FTDC_SDPS_Cancelled = (byte)'d',
-}
-
-/// <summary>
-/// 指令权限类型类型
-///</summary>
-public enum TThostFtdcInstructionRightTypeType : byte
-{
-	/// <summary>
-	/// 限价单
-	///</summary>
-	THOST_FTDC_ISTR_Limit = (byte)'1',
-	/// <summary>
-	/// 限价全额成交否则取消
-	///</summary>
-	THOST_FTDC_ISTR_Limit_FOK = (byte)'2',
-	/// <summary>
-	/// 市价订单剩余转限价
-	///</summary>
-	THOST_FTDC_ISTR_Market_RemainLimit = (byte)'3',
-	/// <summary>
-	/// 市价订单剩余撤销
-	///</summary>
-	THOST_FTDC_ISTR_Market_FAK = (byte)'4',
-	/// <summary>
-	/// 市价全额成交否则取消
-	///</summary>
-	THOST_FTDC_ISTR_Market_FOK = (byte)'5',
-	/// <summary>
-	/// 证券锁定
-	///</summary>
-	THOST_FTDC_ISTR_Lock = (byte)'6',
-	/// <summary>
-	/// 证券解锁
-	///</summary>
-	THOST_FTDC_ISTR_Unlock = (byte)'7',
-}
-
-/// <summary>
-/// 投资者分级类型类型
-///</summary>
-public enum TThostFtdcLevelTypeType : byte
-{
-	/// <summary>
-	/// 一级投资者
-	///</summary>
-	THOST_FTDC_IVLV_FirstLevel = (byte)'1',
-	/// <summary>
-	/// 二级投资者
-	///</summary>
-	THOST_FTDC_IVLV_SecondLevel = (byte)'2',
-	/// <summary>
-	/// 三级投资者
-	///</summary>
-	THOST_FTDC_IVLV_ThirdLevel = (byte)'3',
-}
-
-/// <summary>
 /// 行权偏移类型类型
 ///</summary>
 public enum TThostFtdcStrikeOffsetTypeType : byte
@@ -6899,6 +6672,29 @@ public enum TThostFtdcStrikeOffsetTypeType : byte
 	/// 盈利比例
 	///</summary>
 	THOST_FTDC_STOV_ProfitRatio = (byte)'4',
+}
+
+/// <summary>
+/// 预约开户状态类型
+///</summary>
+public enum TThostFtdcReserveOpenAccStasType : byte
+{
+	/// <summary>
+	/// 等待处理中
+	///</summary>
+	THOST_FTDC_ROAST_Processing = (byte)'0',
+	/// <summary>
+	/// 已撤销
+	///</summary>
+	THOST_FTDC_ROAST_Cancelled = (byte)'1',
+	/// <summary>
+	/// 已开户
+	///</summary>
+	THOST_FTDC_ROAST_Opened = (byte)'2',
+	/// <summary>
+	/// 无效请求
+	///</summary>
+	THOST_FTDC_ROAST_Invalid = (byte)'3',
 }
 
 /// <summary>

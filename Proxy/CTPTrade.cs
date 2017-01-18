@@ -32,8 +32,8 @@ namespace HaiFeng
 		public CTPTrade()
 		{
 			//释放接口的C++相关文件
-			Directory.CreateDirectory("./ctp_dll");
-			string[] files = { "./ctp_dll/thosttraderapi.dll", "./ctp_dll/ctp_trade.dll" };
+			Directory.CreateDirectory("ctp_dll");
+			string[] files = { "ctp_dll\\thosttraderapi.dll", "ctp_dll\\ctp_trade.dll" };
 			object[] objs = { Resources.thosttraderapi, Resources.ctp_trade };
 
 			for (int i = 0; i < files.Length; ++i)
@@ -85,9 +85,9 @@ namespace HaiFeng
 		{
 			//避免登录错误后不断重连
 			if (pRspInfo.ErrorID != 0)
-				_t.SetOnFrontConnected(null);
-			else //正常登录时注册连接事件(后续自动重连时可自行登录)
-				_t.SetOnFrontConnected(CTPOnFrontConnected);
+				_t.SetOnFrontDisconnected(null);
+			//else //正常登录时注册连接事件(后续自动重连时可自行登录)
+				//_t.SetOnFrontConnected(CTPOnFrontConnected);
 
 			if (pRspInfo.ErrorID == 0)
 			{
@@ -156,8 +156,10 @@ namespace HaiFeng
 			if (bIsLast)
 			{
 				//查询流控
-				Thread.Sleep(1100);
-				_t.ReqQryTradingAccount(_broker, _investor);
+				_tIsLogin = new Thread(qryPosiAccount);
+				_tIsLogin.Start();
+				//Thread.Sleep(1100);
+				//_t.ReqQryTradingAccount(_broker, _investor);
 			}
 		}
 
@@ -185,8 +187,6 @@ namespace HaiFeng
 				//首次查询后启动循环查询
 				if (!IsLogin)
 				{
-					_tIsLogin = new Thread(qryPosiAccount);
-					_tIsLogin.Start();
 				}
 			}
 		}
