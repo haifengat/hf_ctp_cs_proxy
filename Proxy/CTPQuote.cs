@@ -24,7 +24,7 @@ namespace HaiFeng
 			for (int i = 0; i < files.Length; ++i)
 			{
 				var bytes = (byte[])objs[i];
-				if (!File.Exists(files[i]))// || bytes.Length != new FileInfo(files[i]).Length)
+				if (!File.Exists(files[i]) || bytes.Length != new FileInfo(files[i]).Length)
 					File.WriteAllBytes(files[i], bytes);
 			}
 			_q = new ctp_quote("./ctp_dll/ctp_quote.dll");

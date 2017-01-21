@@ -39,7 +39,7 @@ namespace HaiFeng
 			for (int i = 0; i < files.Length; ++i)
 			{
 				var bytes = (byte[])objs[i];
-				if (!File.Exists(files[i]))// || bytes.Length != new FileInfo(files[i]).Length)
+				if (!File.Exists(files[i]) || bytes.Length != new FileInfo(files[i]).Length)
 					File.WriteAllBytes(files[i], bytes);
 			}
 			_t = new ctp_trade("./ctp_dll/ctp_trade.dll");
@@ -269,6 +269,7 @@ namespace HaiFeng
 
 		void qryPosiAccount()
 		{
+			_rtnOrderTime = DateTime.Now;
 			//当rtnorder数量过大时,需等待n秒响应时间.避免在旧的rtnorder未响应完成时进行接口操作导致未知错误.
 			do
 			{
