@@ -162,12 +162,14 @@ namespace HaiFeng
 		public delegate IntPtr DeleReqQueryBankAccountMoneyByFuture(IntPtr api, CThostFtdcReqQueryAccountField pReqQueryAccount, int nRequestID);
 
 		#endregion
+
 		#region REQ函数
 
 		private int nRequestID = 0;
 
 		public IntPtr Release()
 		{
+			(Invoke(_handle, "RegisterSpi", typeof(DeleRegisterSpi)) as DeleRegisterSpi)(_api, IntPtr.Zero);
 			return (Invoke(_handle, "Release", typeof(DeleRelease)) as DeleRelease)(_api);
 		}
 
@@ -295,18 +297,23 @@ namespace HaiFeng
 				OrderPriceType = OrderPriceType,
 				Direction = Direction,
 				CombOffsetFlag = CombOffsetFlag,
-				CombHedgeFlag = CombHedgeFlag,				LimitPrice = LimitPrice,
+				CombHedgeFlag = CombHedgeFlag,
+				LimitPrice = LimitPrice,
 				VolumeTotalOriginal = VolumeTotalOriginal,
 
 				TimeCondition = TimeCondition,
 				GTDDate = GTDDate,
-				VolumeCondition = VolumeCondition,				MinVolume = MinVolume,
+				VolumeCondition = VolumeCondition,
+				MinVolume = MinVolume,
 
-				ContingentCondition = ContingentCondition,				StopPrice = StopPrice,
+				ContingentCondition = ContingentCondition,
+				StopPrice = StopPrice,
 
-				ForceCloseReason = ForceCloseReason,				IsAutoSuspend = IsAutoSuspend,
+				ForceCloseReason = ForceCloseReason,
+				IsAutoSuspend = IsAutoSuspend,
 
-				BusinessUnit = BusinessUnit,				RequestID = RequestID,
+				BusinessUnit = BusinessUnit,
+				RequestID = RequestID,
 				UserForceClose = UserForceClose,
 				IsSwapOrder = IsSwapOrder,
 
@@ -333,26 +340,33 @@ namespace HaiFeng
 				OrderPriceType = OrderPriceType,
 				Direction = Direction,
 				CombOffsetFlag = CombOffsetFlag,
-				CombHedgeFlag = CombHedgeFlag,				LimitPrice = LimitPrice,
+				CombHedgeFlag = CombHedgeFlag,
+				LimitPrice = LimitPrice,
 				VolumeTotalOriginal = VolumeTotalOriginal,
 
 				TimeCondition = TimeCondition,
 				GTDDate = GTDDate,
-				VolumeCondition = VolumeCondition,				MinVolume = MinVolume,
+				VolumeCondition = VolumeCondition,
+				MinVolume = MinVolume,
 
-				ContingentCondition = ContingentCondition,				StopPrice = StopPrice,
+				ContingentCondition = ContingentCondition,
+				StopPrice = StopPrice,
 
-				ForceCloseReason = ForceCloseReason,				IsAutoSuspend = IsAutoSuspend,
+				ForceCloseReason = ForceCloseReason,
+				IsAutoSuspend = IsAutoSuspend,
 
-				BusinessUnit = BusinessUnit,				RequestID = RequestID,
+				BusinessUnit = BusinessUnit,
+				RequestID = RequestID,
 				UserForceClose = UserForceClose,
 
 				ExchangeID = ExchangeID,
 				ParkedOrderID = ParkedOrderID,
 				UserType = UserType,
-				Status = Status,				ErrorID = ErrorID,
+				Status = Status,
+				ErrorID = ErrorID,
 
-				ErrorMsg = ErrorMsg,				IsSwapOrder = IsSwapOrder,
+				ErrorMsg = ErrorMsg,
+				IsSwapOrder = IsSwapOrder,
 
 				AccountID = AccountID,
 				CurrencyID = CurrencyID,
@@ -369,22 +383,26 @@ namespace HaiFeng
 			CThostFtdcParkedOrderActionField struc = new CThostFtdcParkedOrderActionField
 			{
 				BrokerID = BrokerID,
-				InvestorID = InvestorID,				OrderActionRef = OrderActionRef,
+				InvestorID = InvestorID,
+				OrderActionRef = OrderActionRef,
 
-				OrderRef = OrderRef,				RequestID = RequestID,
+				OrderRef = OrderRef,
+				RequestID = RequestID,
 				FrontID = FrontID,
 				SessionID = SessionID,
 
 				ExchangeID = ExchangeID,
 				OrderSysID = OrderSysID,
-				ActionFlag = ActionFlag,				LimitPrice = LimitPrice,
+				ActionFlag = ActionFlag,
+				LimitPrice = LimitPrice,
 				VolumeChange = VolumeChange,
 
 				UserID = UserID,
 				InstrumentID = InstrumentID,
 				ParkedOrderActionID = ParkedOrderActionID,
 				UserType = UserType,
-				Status = Status,				ErrorID = ErrorID,
+				Status = Status,
+				ErrorID = ErrorID,
 
 				ErrorMsg = ErrorMsg,
 				InvestUnitID = InvestUnitID,
@@ -399,15 +417,18 @@ namespace HaiFeng
 			CThostFtdcInputOrderActionField struc = new CThostFtdcInputOrderActionField
 			{
 				BrokerID = BrokerID,
-				InvestorID = InvestorID,				OrderActionRef = OrderActionRef,
+				InvestorID = InvestorID,
+				OrderActionRef = OrderActionRef,
 
-				OrderRef = OrderRef,				RequestID = RequestID,
+				OrderRef = OrderRef,
+				RequestID = RequestID,
 				FrontID = FrontID,
 				SessionID = SessionID,
 
 				ExchangeID = ExchangeID,
 				OrderSysID = OrderSysID,
-				ActionFlag = ActionFlag,				LimitPrice = LimitPrice,
+				ActionFlag = ActionFlag,
+				LimitPrice = LimitPrice,
 				VolumeChange = VolumeChange,
 
 				UserID = UserID,
@@ -428,7 +449,8 @@ namespace HaiFeng
 				InstrumentID = InstrumentID,
 				Direction = Direction,
 				OffsetFlag = OffsetFlag,
-				HedgeFlag = HedgeFlag,				MaxVolume = MaxVolume,
+				HedgeFlag = HedgeFlag,
+				MaxVolume = MaxVolume,
 
 			};
 			return (Invoke(_handle, "ReqQueryMaxOrderVolume", typeof(DeleReqQueryMaxOrderVolume)) as DeleReqQueryMaxOrderVolume)(_api, struc, this.nRequestID++);
@@ -476,7 +498,8 @@ namespace HaiFeng
 				InvestorID = InvestorID,
 				InstrumentID = InstrumentID,
 				ExecOrderRef = ExecOrderRef,
-				UserID = UserID,				Volume = Volume,
+				UserID = UserID,
+				Volume = Volume,
 				RequestID = RequestID,
 
 				BusinessUnit = BusinessUnit,
@@ -502,9 +525,11 @@ namespace HaiFeng
 			CThostFtdcInputExecOrderActionField struc = new CThostFtdcInputExecOrderActionField
 			{
 				BrokerID = BrokerID,
-				InvestorID = InvestorID,				ExecOrderActionRef = ExecOrderActionRef,
+				InvestorID = InvestorID,
+				ExecOrderActionRef = ExecOrderActionRef,
 
-				ExecOrderRef = ExecOrderRef,				RequestID = RequestID,
+				ExecOrderRef = ExecOrderRef,
+				RequestID = RequestID,
 				FrontID = FrontID,
 				SessionID = SessionID,
 
@@ -545,7 +570,8 @@ namespace HaiFeng
 				InvestorID = InvestorID,
 				InstrumentID = InstrumentID,
 				QuoteRef = QuoteRef,
-				UserID = UserID,				AskPrice = AskPrice,
+				UserID = UserID,
+				AskPrice = AskPrice,
 				BidPrice = BidPrice,
 				AskVolume = AskVolume,
 				BidVolume = BidVolume,
@@ -573,9 +599,11 @@ namespace HaiFeng
 			CThostFtdcInputQuoteActionField struc = new CThostFtdcInputQuoteActionField
 			{
 				BrokerID = BrokerID,
-				InvestorID = InvestorID,				QuoteActionRef = QuoteActionRef,
+				InvestorID = InvestorID,
+				QuoteActionRef = QuoteActionRef,
 
-				QuoteRef = QuoteRef,				RequestID = RequestID,
+				QuoteRef = QuoteRef,
+				RequestID = RequestID,
 				FrontID = FrontID,
 				SessionID = SessionID,
 
@@ -597,7 +625,8 @@ namespace HaiFeng
 			CThostFtdcInputBatchOrderActionField struc = new CThostFtdcInputBatchOrderActionField
 			{
 				BrokerID = BrokerID,
-				InvestorID = InvestorID,				OrderActionRef = OrderActionRef,
+				InvestorID = InvestorID,
+				OrderActionRef = OrderActionRef,
 				RequestID = RequestID,
 				FrontID = FrontID,
 				SessionID = SessionID,
@@ -620,7 +649,8 @@ namespace HaiFeng
 				InstrumentID = InstrumentID,
 				CombActionRef = CombActionRef,
 				UserID = UserID,
-				Direction = Direction,				Volume = Volume,
+				Direction = Direction,
+				Volume = Volume,
 
 				CombDirection = CombDirection,
 				HedgeFlag = HedgeFlag,
@@ -969,7 +999,8 @@ namespace HaiFeng
 				BrokerID = BrokerID,
 				InvestorID = InvestorID,
 				InstrumentID = InstrumentID,
-				HedgeFlag = HedgeFlag,				InputPrice = InputPrice,
+				HedgeFlag = HedgeFlag,
+				InputPrice = InputPrice,
 				UnderlyingPrice = UnderlyingPrice,
 
 			};
@@ -1167,9 +1198,11 @@ namespace HaiFeng
 				TradeDate = TradeDate,
 				TradeTime = TradeTime,
 				BankSerial = BankSerial,
-				TradingDay = TradingDay,				PlateSerial = PlateSerial,
+				TradingDay = TradingDay,
+				PlateSerial = PlateSerial,
 
-				LastFragment = LastFragment,				SessionID = SessionID,
+				LastFragment = LastFragment,
+				SessionID = SessionID,
 
 				CustomerName = CustomerName,
 				IdCardType = IdCardType,
@@ -1178,15 +1211,18 @@ namespace HaiFeng
 				BankAccount = BankAccount,
 				BankPassWord = BankPassWord,
 				AccountID = AccountID,
-				Password = Password,				InstallID = InstallID,
+				Password = Password,
+				InstallID = InstallID,
 				FutureSerial = FutureSerial,
 
 				UserID = UserID,
 				VerifyCertNoFlag = VerifyCertNoFlag,
-				CurrencyID = CurrencyID,				TradeAmount = TradeAmount,
+				CurrencyID = CurrencyID,
+				TradeAmount = TradeAmount,
 				FutureFetchAmount = FutureFetchAmount,
 
-				FeePayFlag = FeePayFlag,				CustFee = CustFee,
+				FeePayFlag = FeePayFlag,
+				CustFee = CustFee,
 				BrokerFee = BrokerFee,
 
 				Message = Message,
@@ -1198,7 +1234,8 @@ namespace HaiFeng
 				BankSecuAcc = BankSecuAcc,
 				BankPwdFlag = BankPwdFlag,
 				SecuPwdFlag = SecuPwdFlag,
-				OperNo = OperNo,				RequestID = RequestID,
+				OperNo = OperNo,
+				RequestID = RequestID,
 				TID = TID,
 
 				TransferStatus = TransferStatus,
@@ -1219,9 +1256,11 @@ namespace HaiFeng
 				TradeDate = TradeDate,
 				TradeTime = TradeTime,
 				BankSerial = BankSerial,
-				TradingDay = TradingDay,				PlateSerial = PlateSerial,
+				TradingDay = TradingDay,
+				PlateSerial = PlateSerial,
 
-				LastFragment = LastFragment,				SessionID = SessionID,
+				LastFragment = LastFragment,
+				SessionID = SessionID,
 
 				CustomerName = CustomerName,
 				IdCardType = IdCardType,
@@ -1230,15 +1269,18 @@ namespace HaiFeng
 				BankAccount = BankAccount,
 				BankPassWord = BankPassWord,
 				AccountID = AccountID,
-				Password = Password,				InstallID = InstallID,
+				Password = Password,
+				InstallID = InstallID,
 				FutureSerial = FutureSerial,
 
 				UserID = UserID,
 				VerifyCertNoFlag = VerifyCertNoFlag,
-				CurrencyID = CurrencyID,				TradeAmount = TradeAmount,
+				CurrencyID = CurrencyID,
+				TradeAmount = TradeAmount,
 				FutureFetchAmount = FutureFetchAmount,
 
-				FeePayFlag = FeePayFlag,				CustFee = CustFee,
+				FeePayFlag = FeePayFlag,
+				CustFee = CustFee,
 				BrokerFee = BrokerFee,
 
 				Message = Message,
@@ -1250,7 +1292,8 @@ namespace HaiFeng
 				BankSecuAcc = BankSecuAcc,
 				BankPwdFlag = BankPwdFlag,
 				SecuPwdFlag = SecuPwdFlag,
-				OperNo = OperNo,				RequestID = RequestID,
+				OperNo = OperNo,
+				RequestID = RequestID,
 				TID = TID,
 
 				TransferStatus = TransferStatus,
@@ -1271,9 +1314,11 @@ namespace HaiFeng
 				TradeDate = TradeDate,
 				TradeTime = TradeTime,
 				BankSerial = BankSerial,
-				TradingDay = TradingDay,				PlateSerial = PlateSerial,
+				TradingDay = TradingDay,
+				PlateSerial = PlateSerial,
 
-				LastFragment = LastFragment,				SessionID = SessionID,
+				LastFragment = LastFragment,
+				SessionID = SessionID,
 
 				CustomerName = CustomerName,
 				IdCardType = IdCardType,
@@ -1282,7 +1327,8 @@ namespace HaiFeng
 				BankAccount = BankAccount,
 				BankPassWord = BankPassWord,
 				AccountID = AccountID,
-				Password = Password,				FutureSerial = FutureSerial,
+				Password = Password,
+				FutureSerial = FutureSerial,
 				InstallID = InstallID,
 
 				UserID = UserID,
@@ -1296,7 +1342,8 @@ namespace HaiFeng
 				BankSecuAcc = BankSecuAcc,
 				BankPwdFlag = BankPwdFlag,
 				SecuPwdFlag = SecuPwdFlag,
-				OperNo = OperNo,				RequestID = RequestID,
+				OperNo = OperNo,
+				RequestID = RequestID,
 				TID = TID,
 
 				LongCustomerName = LongCustomerName,
@@ -1305,6 +1352,7 @@ namespace HaiFeng
 		}
 
 		#endregion
+
 		delegate void DeleSet(IntPtr spi, Delegate func);
 
 		public delegate void DeleOnFrontConnected();

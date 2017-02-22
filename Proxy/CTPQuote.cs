@@ -205,9 +205,9 @@ namespace HaiFeng
 			this.IsLogin = false;
 			//上面的disconnect注销掉,需要主动调用此回调函数
 			_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = 0 });
-			//取消连接响应,避免重连后的再登录.
-			_q.SetOnFrontDisconnected(null);
-			_q.SetOnFrontConnected(null);
+			//取消连接响应,避免重连后的再登录.（release中已处理）
+			//_q.SetOnFrontDisconnected(null);
+			//_q.SetOnFrontConnected(null);
 			_q.Release();
 		}
 	}

@@ -103,6 +103,7 @@ namespace HaiFeng
 
 		public IntPtr Release()
 		{
+			(Invoke(_handle, "RegisterSpi", typeof(DeleRegisterSpi)) as DeleRegisterSpi)(_api, IntPtr.Zero);
 			return (Invoke(_handle, "Release", typeof(DeleRelease)) as DeleRelease)(_api);
 		}
 
