@@ -28,6 +28,7 @@ namespace HaiFeng
 		private readonly ConcurrentDictionary<string, List<CThostFtdcTradeField>> _sysidTrade = new ConcurrentDictionary<string, List<CThostFtdcTradeField>>();
 		private readonly Stopwatch _sw = new Stopwatch();
 		private readonly List<Delegate> _listDele = new List<Delegate>();
+		private int _ref = 0;
 
 		public CTPTrade()
 		{
@@ -87,7 +88,7 @@ namespace HaiFeng
 			if (pRspInfo.ErrorID != 0)
 				_t.SetOnFrontDisconnected(null);
 			//else //正常登录时注册连接事件(后续自动重连时可自行登录)
-				//_t.SetOnFrontConnected(CTPOnFrontConnected);
+			//_t.SetOnFrontConnected(CTPOnFrontConnected);
 
 			if (pRspInfo.ErrorID == 0)
 			{
@@ -743,7 +744,7 @@ namespace HaiFeng
 			}
 
 			return (int)_t.ReqOrderInsert(_broker, _investor, InstrumentID: pInstrument,
-				OrderRef: string.Format("{0:000000}{1:000000}", this.DicOrderField.Count, pCustom % 1000000),
+				OrderRef: string.Format("{0:000000}{1:000000}", _ref++, pCustom % 1000000),
 				CombHedgeFlag: new string((char)(pHedge == HedgeType.Speculation ? TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation : pHedge == HedgeType.Arbitrage ? TThostFtdcHedgeFlagType.THOST_FTDC_HF_Arbitrage : TThostFtdcHedgeFlagType.THOST_FTDC_HF_Hedge), 1),
 				CombOffsetFlag: new String((char)(pOffset == OffsetType.Open ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open : pOffset == OffsetType.Close ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close : TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday), 1),
 				Direction: pDirection == DirectionType.Buy ? TThostFtdcDirectionType.THOST_FTDC_D_Buy : TThostFtdcDirectionType.THOST_FTDC_D_Sell,
