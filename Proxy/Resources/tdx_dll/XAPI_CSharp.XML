@@ -1,0 +1,1319 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>XAPI_CSharp</name>
+    </assembly>
+    <members>
+        <member name="M:XAPI.Callback.BaseApi.GCCollect">
+            <summary>
+            这个功能主要是给非.NET语言在调用时使用
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.GarbageCollection">
+            <summary>
+            Summary description for GarbageCollection.
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.IXApiEvents">
+            <summary>
+            将object sender改成XApiCom sender后，在MATLAB下只是OnData事件可以注册后收到消息，而其它的事件都无法直接收到
+            如果将OnConnectionStatus这类的事件修改成不带类成员的这种，一些信息又无法传递
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.COINIT.COINIT_MULTITHREADED">
+            Initializes the thread for multi-threaded object concurrency.
+        </member>
+        <member name="F:XAPI.COM.COINIT.COINIT_APARTMENTTHREADED">
+            Initializes the thread for apartment-threaded object concurrency. 
+        </member>
+        <member name="F:XAPI.COM.COINIT.COINIT_DISABLE_OLE1DDE">
+            Disables DDE for Ole1 support.
+        </member>
+        <member name="F:XAPI.COM.COINIT.COINIT_SPEED_OVER_MEMORY">
+            Trades memory for speed.
+        </member>
+        <member name="M:XAPI.COM.ManagedCOMLocalServer.Main(System.String[])">
+            <summary>
+            The main entry point for the application.
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.PositionClass">
+            持仓
+        </member>
+        <member name="F:XAPI.COM.PositionClass.TodayBSPosition">
+            今日买卖持仓
+        </member>
+        <member name="F:XAPI.COM.PositionClass.TodayBSFrozen">
+            今日买卖持仓冻结
+        </member>
+        <member name="F:XAPI.COM.PositionClass.TodayPRPosition">
+            今日申赎持仓
+        </member>
+        <member name="F:XAPI.COM.PositionClass.TodayPRFrozen">
+            今日申赎持仓冻结
+        </member>
+        <member name="T:XAPI.COM.QuoteField">
+            <summary>
+            做市商双向报价
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.OrderClass">
+            <summary>
+            订单信息
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.TradeClass">
+            <summary>
+            成交回报
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.ErrorClass">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.ErrorClass.XErrorID">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.ErrorClass.RawErrorID">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.ErrorClass.Text">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.ErrorClass.Source">
+            <summary>
+            信息来源
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.LogClass">
+            <summary>
+            日志信息
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.LogClass.Level">
+            <summary>
+            日志级别
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.LogClass.Message">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.DepthClass">
+            <summary>
+            DepthField行情
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.InstrumentClass">
+            <summary>
+            合约信息
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.Type">
+            <summary>
+            类型
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.VolumeMultiple">
+            <summary>
+            合约数量乘数
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.PriceTick">
+            <summary>
+            最小变动价位
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.ExpireDate">
+            <summary>
+            到期日
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.StrikePrice">
+            <summary>
+            执行价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.OptionsType">
+            <summary>
+            期权类型
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.ProductID">
+            <summary>
+            产品代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.UnderlyingInstrID">
+            <summary>
+            基础商品代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.InstrumentClass.InstLifePhase">
+            合约生命周期状态
+        </member>
+        <member name="T:XAPI.COM.AccountClass">
+            <summary>
+            账号
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.PreBalance">
+            <summary>
+            上次结算准备金
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.CurrMargin">
+            <summary>
+            当前保证金总额
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.CloseProfit">
+            <summary>
+            平仓盈亏
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.PositionProfit">
+            <summary>
+            持仓盈亏
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.Balance">
+            <summary>
+            期货结算准备金
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.Available">
+            <summary>
+            可用资金
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.Deposit">
+            <summary>
+            入金金额
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.Withdraw">
+            <summary>
+            出金金额
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.WithdrawQuota">
+            <summary>
+            可取资金
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.FrozenTransferFee">
+            <summary>
+            冻结的过户费
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.FrozenStampTax">
+            <summary>
+            冻结的印花税
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.FrozenCommission">
+            <summary>
+            冻结的手续费
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.FrozenCash">
+            <summary>
+            冻结的资金
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.TransferFee">
+            <summary>
+            过户费
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.StampTax">
+            <summary>
+            印花税
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.Commission">
+            <summary>
+            手续费
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.AccountClass.CashIn">
+            <summary>
+            资金差额
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.QuoteRequestField">
+            <summary>
+            发给做市商的询价请求
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.QuoteRequestField.Symbol">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.QuoteRequestField.InstrumentID">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.QuoteRequestField.ExchangeID">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.QuoteRequestField.TradingDay">
+            <summary>
+            交易日
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.QuoteRequestField.QuoteTime">
+            <summary>
+            询价时间
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.QuoteRequestField.QuoteID">
+            <summary>
+            询价编号
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.SettlementInfoClass.TradingDay">
+            <summary>
+            交易日
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.InvestorField">
+            <summary>
+            投资者
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.Exchange">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.LastPrice">
+            <summary>
+            最新价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.Volume">
+            <summary>
+            数量
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.Turnover">
+            <summary>
+            成交金额
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.OpenInterest">
+            <summary>
+            持仓量
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.AveragePrice">
+            <summary>
+            当日均价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.OpenPrice">
+            <summary>
+            今开盘
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.HighestPrice">
+            <summary>
+            最高价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.LowestPrice">
+            <summary>
+            最低价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.ClosePrice">
+            <summary>
+            今收盘
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.SettlementPrice">
+            <summary>
+            本次结算价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.UpperLimitPrice">
+            <summary>
+            涨停板价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.LowerLimitPrice">
+            <summary>
+            跌停板价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.PreClosePrice">
+            <summary>
+            昨收盘
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.PreSettlementPrice">
+            <summary>
+            上次结算价
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.PreOpenInterest">
+            <summary>
+            昨持仓量
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.DepthMarketDataNClass.TradingPhase">
+            交易阶段类型
+        </member>
+        <member name="T:XAPI.COM.TickField">
+            <summary>
+            Tick行情
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.BarField">
+            <summary>
+            Bar行情
+            </summary>
+        </member>
+        <member name="T:XAPI.COM.HistoricalDataRequestField">
+            <summary>
+            合约信息
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.HistoricalDataRequestField.Symbol">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.HistoricalDataRequestField.InstrumentID">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.COM.HistoricalDataRequestField.ExchangeID">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="M:XAPI.COM.XApiCom.RegisterClass(System.String)">
+            <summary>
+            Register the class as a control and set its CodeBase entry
+            </summary>
+            <param name="key">The registry key of the control</param>
+        </member>
+        <member name="M:XAPI.COM.XApiCom.UnregisterClass(System.String)">
+            <summary>
+            Called to unregister the control
+            </summary>
+            <param name="key">The registry key</param>
+        </member>
+        <member name="M:XAPI.COM.XApiCom.GCCollect">
+            <summary>
+            给COM使用，进行内存回收
+            </summary>
+        </member>
+        <member name="T:XAPI.ConnectionStatus">
+            <summary>
+            连接状态
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Uninitialized">
+            <summary>
+            未初始化
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Initialized">
+            <summary>
+            已经初始化
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Disconnected">
+            <summary>
+            连接已经断开
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Connecting">
+            <summary>
+            连接中...
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Connected">
+            <summary>
+            连接成功
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Authorizing">
+            <summary>
+            授权中...
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Authorized">
+            <summary>
+            授权成功
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Logining">
+            <summary>
+            登录中...
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Logined">
+            <summary>
+            登录成功
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Confirming">
+            <summary>
+            确认中...
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Confirmed">
+            <summary>
+            已经确认
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Doing">
+            <summary>
+            已经确认
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Done">
+            <summary>
+            完成
+            </summary>
+        </member>
+        <member name="F:XAPI.ConnectionStatus.Unknown">
+            <summary>
+            未知
+            </summary>
+        </member>
+        <member name="F:XAPI.OrderSide.LOFRedemption">
+            LOF申购
+        </member>
+        <member name="F:XAPI.OrderSide.ETFCreation">
+            LOF赎回
+        </member>
+        <member name="F:XAPI.OrderSide.ETFRedemption">
+            ETF申购
+        </member>
+        <member name="F:XAPI.OrderSide.Merge">
+            ETF赎回
+        </member>
+        <member name="F:XAPI.OrderSide.Split">
+            合并
+        </member>
+        <member name="F:XAPI.OrderSide.CBConvert">
+            拆分
+        </member>
+        <member name="F:XAPI.OrderSide.CBRedemption">
+            可转债转股，参考于https://en.wikipedia.org/wiki/Convertible_bond
+        </member>
+        <member name="F:XAPI.IdCardType.IDCard">
+            组织机构代码
+        </member>
+        <member name="F:XAPI.IdCardType.Passport">
+            中国公民身份证
+        </member>
+        <member name="F:XAPI.IdCardType.LicenseNo">
+            护照
+        </member>
+        <member name="F:XAPI.IdCardType.TaxNo">
+            营业执照号
+        </member>
+        <member name="F:XAPI.IdCardType.DrivingLicense">
+            税务登记号/当地纳税ID
+        </member>
+        <member name="F:XAPI.IdCardType.SocialID">
+            驾照
+        </member>
+        <member name="F:XAPI.IdCardType.LocalID">
+            当地社保ID
+        </member>
+        <member name="F:XAPI.IdCardType.OtherCard">
+            当地身份证
+        </member>
+        <member name="F:XAPI.ExchangeType.SHFE">
+            未定义
+        </member>
+        <member name="F:XAPI.ExchangeType.DCE">
+            上期所
+        </member>
+        <member name="F:XAPI.ExchangeType.CZCE">
+            大商所
+        </member>
+        <member name="F:XAPI.ExchangeType.CFFEX">
+            郑商所
+        </member>
+        <member name="F:XAPI.ExchangeType.INE">
+            中金所
+        </member>
+        <member name="F:XAPI.ExchangeType.SSE">
+            能源中心
+        </member>
+        <member name="F:XAPI.ExchangeType.SZSE">
+            上交所
+        </member>
+        <member name="F:XAPI.ExchangeType.SGE">
+            深交所
+        </member>
+        <member name="F:XAPI.ExchangeType.NEEQ">
+            上海黄金交易所
+        </member>
+        <member name="F:XAPI.ExchangeType.HKEx">
+            全国中小企业股份转让系统,三板
+        </member>
+        <member name="T:XAPI.InstLifePhaseType">
+            合约生命周期状态类型
+        </member>
+        <member name="F:XAPI.InstLifePhaseType.Started">
+            未上市
+        </member>
+        <member name="F:XAPI.InstLifePhaseType.Pause">
+            上市
+        </member>
+        <member name="F:XAPI.InstLifePhaseType.Expired">
+            停牌
+        </member>
+        <member name="F:XAPI.InstLifePhaseType.Issue">
+            到期
+        </member>
+        <member name="F:XAPI.InstLifePhaseType.FirstList">
+            发行,参考于XSpeed
+        </member>
+        <member name="F:XAPI.InstLifePhaseType.UnList">
+            首日上市,参考于XSpeed
+        </member>
+        <member name="T:XAPI.TradingPhaseType">
+            交易阶段类型
+        </member>
+        <member name="F:XAPI.TradingPhaseType.NoTrading">
+            开盘前
+        </member>
+        <member name="F:XAPI.TradingPhaseType.Continuous">
+            非交易
+        </member>
+        <member name="F:XAPI.TradingPhaseType.AuctionOrdering">
+            连续交易
+        </member>
+        <member name="F:XAPI.TradingPhaseType.AuctionBalance">
+            集合竞价报单
+        </member>
+        <member name="F:XAPI.TradingPhaseType.AuctionMatch">
+            集合竞价价格平衡
+        </member>
+        <member name="F:XAPI.TradingPhaseType.Closed">
+            集合竞价撮合
+        </member>
+        <member name="F:XAPI.TradingPhaseType.Suspension">
+            收盘
+        </member>
+        <member name="F:XAPI.TradingPhaseType.Fuse">
+            停牌时段,参考于LTS
+        </member>
+        <member name="T:XAPI.BarType">
+            <summary>
+            /////////////////////////////////////////////////////////
+            </summary>
+        </member>
+        <member name="T:XAPI.DepthLevelType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:XAPI.GB2312Marshaler">
+            <summary>
+            Custom marshalers cannot be used on fields of structures
+            无语，本想实现中文直接的正常使用，后来发现这个不能用在结构体上还是没办法使用
+            </summary>
+        </member>
+        <member name="T:XAPI.IObjectSafety">
+            <summary>
+            Import the IObjectSaftety COM Interface. 
+            See http://msdn.microsoft.com/en-us/library/aa768224(VS.85).aspx
+            </summary>
+        </member>
+        <member name="T:XAPI.ReqQueryField">
+            <summary>
+            查询持仓,查委托，查成交
+            </summary>
+        </member>
+        <member name="T:XAPI.PositionField">
+            持仓
+        </member>
+        <member name="F:XAPI.PositionField.TodayBSPosition">
+            今日买卖持仓
+        </member>
+        <member name="F:XAPI.PositionField.TodayBSFrozen">
+            今日买卖持仓冻结
+        </member>
+        <member name="F:XAPI.PositionField.TodayPRPosition">
+            今日申赎持仓
+        </member>
+        <member name="F:XAPI.PositionField.TodayPRFrozen">
+            今日申赎持仓冻结
+        </member>
+        <member name="T:XAPI.QuoteField">
+            <summary>
+            做市商双向报价
+            </summary>
+        </member>
+        <member name="T:XAPI.OrderField">
+            <summary>
+            订单信息
+            </summary>
+        </member>
+        <member name="T:XAPI.TradeField">
+            <summary>
+            成交回报
+            </summary>
+        </member>
+        <member name="T:XAPI.ServerInfoField">
+            <summary>
+            服务器信息
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.IsUsingUdp">
+            <summary>
+            订阅主题
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.IsMulticast">
+            <summary>
+            订阅主题
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.TopicId">
+            <summary>
+            订阅主题
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.Port">
+            <summary>
+            端口号
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.MarketDataTopicResumeType">
+            <summary>
+            流恢复
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.BrokerID">
+            <summary>
+            经纪公司代码
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.UserProductInfo">
+            <summary>
+            用户端产品信息
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.AuthCode">
+            <summary>
+            认证码
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.Address">
+            <summary>
+            地址
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.ConfigPath">
+            <summary>
+            配置文件路径
+            </summary>
+        </member>
+        <member name="F:XAPI.ServerInfoField.ExtInfoChar128">
+            <summary>
+            扩展信息
+            </summary>
+        </member>
+        <member name="T:XAPI.UserInfoField">
+            <summary>
+            用户信息
+            </summary>
+        </member>
+        <member name="F:XAPI.UserInfoField.UserID">
+            <summary>
+            用户代码
+            </summary>
+        </member>
+        <member name="F:XAPI.UserInfoField.Password">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="F:XAPI.UserInfoField.ExtInfoChar64">
+            <summary>
+            扩展信息，通达信中用来做通讯密码
+            </summary>
+        </member>
+        <member name="F:XAPI.UserInfoField.ExtInfoInt32">
+            <summary>
+            扩展信息
+            </summary>
+        </member>
+        <member name="T:XAPI.ErrorField">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="F:XAPI.ErrorField.XErrorID">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="F:XAPI.ErrorField.RawErrorID">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="F:XAPI.ErrorField.Text">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="F:XAPI.ErrorField.Source">
+            <summary>
+            信息来源
+            </summary>
+        </member>
+        <member name="T:XAPI.LogField">
+            <summary>
+            日志信息
+            </summary>
+        </member>
+        <member name="F:XAPI.LogField.Level">
+            <summary>
+            日志级别
+            </summary>
+        </member>
+        <member name="F:XAPI.LogField.Message">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="T:XAPI.RspUserLoginField">
+            <summary>
+            登录回报
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.TradingDay">
+            <summary>
+            交易日
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.LoginTime">
+            <summary>
+            时间
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.SessionID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.UserID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.AccountID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.InvestorName">
+            <summary>
+            投资者名称
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.XErrorID">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.RawErrorID">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="F:XAPI.RspUserLoginField.Text">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="T:XAPI.DepthField">
+            <summary>
+            DepthField行情
+            </summary>
+        </member>
+        <member name="T:XAPI.InstrumentField">
+            <summary>
+            合约信息
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.Type">
+            <summary>
+            类型
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.VolumeMultiple">
+            <summary>
+            合约数量乘数
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.PriceTick">
+            <summary>
+            最小变动价位
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.ExpireDate">
+            <summary>
+            到期日
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.StrikePrice">
+            <summary>
+            执行价
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.OptionsType">
+            <summary>
+            期权类型
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.ProductID">
+            <summary>
+            产品代码
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.UnderlyingInstrID">
+            <summary>
+            基础商品代码
+            </summary>
+        </member>
+        <member name="F:XAPI.InstrumentField.InstLifePhase">
+            合约生命周期状态
+        </member>
+        <member name="T:XAPI.AccountField">
+            <summary>
+            账号
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.PreBalance">
+            <summary>
+            上次结算准备金
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.CurrMargin">
+            <summary>
+            当前保证金总额
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.CloseProfit">
+            <summary>
+            平仓盈亏
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.PositionProfit">
+            <summary>
+            持仓盈亏
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.Balance">
+            <summary>
+            期货结算准备金
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.Available">
+            <summary>
+            可用资金
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.Deposit">
+            <summary>
+            入金金额
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.Withdraw">
+            <summary>
+            出金金额
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.WithdrawQuota">
+            <summary>
+            可取资金
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.FrozenTransferFee">
+            <summary>
+            冻结的过户费
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.FrozenStampTax">
+            <summary>
+            冻结的印花税
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.FrozenCommission">
+            <summary>
+            冻结的手续费
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.FrozenCash">
+            <summary>
+            冻结的资金
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.TransferFee">
+            <summary>
+            过户费
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.StampTax">
+            <summary>
+            印花税
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.Commission">
+            <summary>
+            手续费
+            </summary>
+        </member>
+        <member name="F:XAPI.AccountField.CashIn">
+            <summary>
+            资金差额
+            </summary>
+        </member>
+        <member name="T:XAPI.QuoteRequestField">
+            <summary>
+            发给做市商的询价请求
+            </summary>
+        </member>
+        <member name="F:XAPI.QuoteRequestField.Symbol">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.QuoteRequestField.InstrumentID">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.QuoteRequestField.ExchangeID">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.QuoteRequestField.TradingDay">
+            <summary>
+            交易日
+            </summary>
+        </member>
+        <member name="F:XAPI.QuoteRequestField.QuoteTime">
+            <summary>
+            询价时间
+            </summary>
+        </member>
+        <member name="F:XAPI.QuoteRequestField.QuoteID">
+            <summary>
+            询价编号
+            </summary>
+        </member>
+        <member name="T:XAPI.SettlementInfoField">
+            <summary>
+            结算信息
+            </summary>
+        </member>
+        <member name="F:XAPI.SettlementInfoField.TradingDay">
+            <summary>
+            交易日
+            </summary>
+        </member>
+        <member name="F:XAPI.SettlementInfoClass.TradingDay">
+            <summary>
+            交易日
+            </summary>
+        </member>
+        <member name="T:XAPI.InvestorField">
+            <summary>
+            投资者
+            </summary>
+        </member>
+        <member name="T:XAPI.DepthMarketDataNField">
+            <summary>
+            深度行情N档
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.Size">
+            占用总字节大小
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.Symbol">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.InstrumentID">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.ExchangeID">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.Exchange">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.LastPrice">
+            <summary>
+            最新价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.Volume">
+            <summary>
+            数量
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.Turnover">
+            <summary>
+            成交金额
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.OpenInterest">
+            <summary>
+            持仓量
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.AveragePrice">
+            <summary>
+            当日均价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.OpenPrice">
+            <summary>
+            今开盘
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.HighestPrice">
+            <summary>
+            最高价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.LowestPrice">
+            <summary>
+            最低价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.ClosePrice">
+            <summary>
+            今收盘
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.SettlementPrice">
+            <summary>
+            本次结算价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.UpperLimitPrice">
+            <summary>
+            涨停板价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.LowerLimitPrice">
+            <summary>
+            跌停板价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.PreClosePrice">
+            <summary>
+            昨收盘
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.PreSettlementPrice">
+            <summary>
+            上次结算价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.PreOpenInterest">
+            <summary>
+            昨持仓量
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.TradingPhase">
+            交易阶段类型
+        </member>
+        <member name="F:XAPI.DepthMarketDataNField.BidCount">
+            买档个数
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.Symbol">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.InstrumentID">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.ExchangeID">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.Exchange">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.LastPrice">
+            <summary>
+            最新价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.Volume">
+            <summary>
+            数量
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.Turnover">
+            <summary>
+            成交金额
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.OpenInterest">
+            <summary>
+            持仓量
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.AveragePrice">
+            <summary>
+            当日均价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.OpenPrice">
+            <summary>
+            今开盘
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.HighestPrice">
+            <summary>
+            最高价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.LowestPrice">
+            <summary>
+            最低价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.ClosePrice">
+            <summary>
+            今收盘
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.SettlementPrice">
+            <summary>
+            本次结算价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.UpperLimitPrice">
+            <summary>
+            涨停板价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.LowerLimitPrice">
+            <summary>
+            跌停板价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.PreClosePrice">
+            <summary>
+            昨收盘
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.PreSettlementPrice">
+            <summary>
+            上次结算价
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.PreOpenInterest">
+            <summary>
+            昨持仓量
+            </summary>
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.TradingPhase">
+            交易阶段类型
+        </member>
+        <member name="F:XAPI.DepthMarketDataNClass.Bids">
+            买档个数
+        </member>
+        <member name="T:XAPI.TickField">
+            <summary>
+            Tick行情
+            </summary>
+        </member>
+        <member name="T:XAPI.BarField">
+            <summary>
+            Bar行情
+            </summary>
+        </member>
+        <member name="T:XAPI.HistoricalDataRequestField">
+            <summary>
+            合约信息
+            </summary>
+        </member>
+        <member name="F:XAPI.HistoricalDataRequestField.Symbol">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.HistoricalDataRequestField.InstrumentID">
+            <summary>
+            合约代码
+            </summary>
+        </member>
+        <member name="F:XAPI.HistoricalDataRequestField.ExchangeID">
+            <summary>
+            交易所代码
+            </summary>
+        </member>
+        <member name="T:Ideafixxxer.Generics.Enum`1">
+            <summary>
+            Helper class for enum types
+            </summary>
+            <typeparam name="T">Must be enum type (declared using <c>enum</c> keyword)</typeparam>
+        </member>
+        <member name="M:Ideafixxxer.Generics.Enum`1.ToString(System.Int32)">
+            <summary>
+            Converts enum value to string
+            </summary>
+            <param name="value">Enum value converted to int</param>
+            <returns>If <paramref name="value"/> is defined, the enum member name; otherwise the string representation of the <paramref name="value"/>.
+            If <see cref="T:System.FlagsAttribute"/> is applied, can return comma-separated list of values</returns>
+        </member>
+        <member name="M:Ideafixxxer.Generics.Enum`1.ToString(`0)">
+            <summary>
+            Converts enum value to string
+            </summary>
+            <param name="value">Enum value</param>
+            <returns>If <paramref name="value"/> is defined, the enum member name; otherwise the string representation of the <paramref name="value"/>.
+            If <see cref="T:System.FlagsAttribute"/> is applied, can return comma-separated list of values</returns>
+        </member>
+    </members>
+</doc>
