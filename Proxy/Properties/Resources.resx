@@ -117,17 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="ctp_quote" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ctp_dll\ctp_quote.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="ctp_trade" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ctp_dll\ctp_trade.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="thostmduserapi" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ctp_dll\thostmduserapi.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="thosttraderapi" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ctp_dll\thosttraderapi.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
 </root>

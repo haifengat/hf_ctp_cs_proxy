@@ -10,22 +10,25 @@ using XAPI.Callback;
 
 namespace HaiFeng
 {
-	public class TDX
+	public class TdxTrade : Trade
 	{
-		tdx_q _q = new tdx_q();
-		tdx_t _t = new tdx_t();
+		TdxQuote _q = new TdxQuote();
 		XApi xapi = null;
 		private ReqQueryField queryField;
 		private Thread _trdQry = null;
 		private List<string> _sub_insts = new List<string>();// new[] { "600020" });
 
-		public TDX(string tdx_login_lua = @"C:\TdxW_HuaTai\Login.lua")
+		public override string TradingDay { get { return DateTime.Today.ToString("yyyyMMdd"); } protected set { } }
+		public override bool IsLogin { get; protected set; }
+
+		public TdxTrade()
 		{
 			Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 			Debug.AutoFlush = true;
 			Debug.Indent();
 
 			xapi = new XApi(@"Tdx\Tdx_Trade_x86.dll");
+
 			xapi.OnConnectionStatus = OnConnect;
 			xapi.OnRspQryTradingAccount = OnRspAccount;
 			xapi.OnRspQryInvestorPosition = OnRspPosition;
@@ -33,26 +36,39 @@ namespace HaiFeng
 			xapi.OnRtnTrade = OnRtnTrade;
 
 			xapi.OnRtnDepthMarketData = OnTick;
-
-			xapi.Server.Address = tdx_login_lua;
-			xapi.Server.ExtInfoChar128 = tdx_login_lua.Substring(0, tdx_login_lua.LastIndexOf('\\') + 1);// @"C:\TdxW_HuaTai\";
 		}
+
 		private void Log(string msg)
 		{
-			//Console.WriteLine(msg);
-			Debug.WriteLine(msg);
+			Console.WriteLine(msg);
+			//Debug.WriteLine(msg);
 		}
 
 		private void OnRtnTrade(object sender, ref XAPI.TradeField trade)
 		{
-			Log(trade.ToFormattedString());
+			var field = DicTradeField.GetOrAdd(trade.TradeID, new TradeField
+			{
+				Direction = trade.Side == OrderSide.Buy ? DirectionType.Buy : DirectionType.Sell,
+				//ExchangeID = trade.ExchangeID,
+				Hedge = HedgeType.Speculation,
+				InstrumentID = trade.InstrumentID,
+				Offset = trade.OpenClose == OpenCloseType.Open ? OffsetType.Open : OffsetType.Close,
+				OrderID = trade.ID,
+				Price = trade.Price,
+				TradeID = trade.TradeID,
+				TradeTime = TimeSpan.FromTicks(trade.Time).ToString(),
+				Volume = (int)trade.Qty,
+				TradingDay = DateTime.Today.ToString("yyyyMMdd"),
+			});
+			Log(field.ToString());
+			_OnRtnTrade?.Invoke(this, new TradeArgs { Value = field });
 		}
 
 		private void OnRtnOrder(object sender, ref XAPI.OrderField order)
 		{
 			//new单会返回两次
 			//Log(order.ToFormattedString());
-			var of = _t.DicOrderField.GetOrAdd(order.ID, new OrderField
+			var of = DicOrderField.GetOrAdd(order.ID, new OrderField
 			{
 				Direction = order.Side == OrderSide.Buy ? DirectionType.Buy : DirectionType.Sell,
 				InsertTime = TimeSpan.FromTicks(order.Time).ToString(),
@@ -67,6 +83,7 @@ namespace HaiFeng
 				Volume = (int)order.Qty,
 				VolumeLeft = (int)order.Qty,
 			});
+			of.StatusMsg = Encoding.Default.GetString(order.Text).Trim('\0');
 
 			switch (order.Status)
 			{
@@ -74,14 +91,19 @@ namespace HaiFeng
 					if (!of.IsLocal)
 					{
 						of.IsLocal = true;
-						this.ReqOrderCancel(of.OrderID);
+						//this.ReqOrderCancel(of.OrderID);
+						_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
 					}
 					break;
 				case XAPI.OrderStatus.Cancelled:
 					of.Status = OrderStatus.Canceled;
+					if (of.IsLocal)
+						_OnRtnCancel?.Invoke(this, new OrderArgs { Value = of });
 					break;
 				case XAPI.OrderStatus.Filled:
 					of.Status = OrderStatus.Filled;
+					if (of.IsLocal)
+						_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
 					break;
 				case XAPI.OrderStatus.NotSent:
 					break;
@@ -90,25 +112,14 @@ namespace HaiFeng
 					break;
 				default:
 					of.Status = OrderStatus.Error;
+					if (of.IsLocal)
+						_OnRtnErrOrder?.Invoke(this, new ErrOrderArgs { ErrorID = order.XErrorID, ErrorMsg = of.StatusMsg, Value = of });
 					break;
 			}
-			of.StatusMsg = Encoding.Default.GetString(order.Text).Trim('\0');
 			Log(of.ToString());
+			Log(order.ExchangeID);
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="investor">帐号</param>
-		/// <param name="pwd">密码</param>
-		/// <param name="ext">附加码</param>
-		public void ReqUserLogin(string investor, string pwd, string ext)
-		{
-			xapi.User.UserID = investor;
-			xapi.User.Password = pwd;
-			xapi.User.ExtInfoChar64 = ext;
-			xapi.Connect();
-		}
 
 		public void ReqSubscribeMarketData(params string[] insts)
 		{
@@ -129,13 +140,23 @@ namespace HaiFeng
 					_trdQry = new Thread(new ThreadStart(Qry));
 					_trdQry.Start();
 				}
+			if (!IsLogin && status == ConnectionStatus.Logined)
+			{
+				IsLogin = true;
+				_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = size1 });
+			}
+			else if (IsLogin && status == ConnectionStatus.Disconnected)
+			{
+				IsLogin = false;
+				_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = size1 });
+			}
 		}
 
 		private void Qry()
 		{
-			xapi.ReqQuery(QueryType.ReqQryTradingAccount, ref queryField);
 			while (true)
 			{
+				xapi.ReqQuery(QueryType.ReqQryTradingAccount, ref queryField);
 				xapi.ReqQuery(QueryType.ReqQryInvestorPosition, ref queryField);
 				//查行情
 				foreach (var inst in _sub_insts)
@@ -149,21 +170,21 @@ namespace HaiFeng
 		{
 			//Log(account.ToFormattedString());
 			//_account = account;
-			_t.TradingAccount.Available = account.Available;
-			_t.TradingAccount.CloseProfit = account.CloseProfit;
-			_t.TradingAccount.Commission = account.Commission;
-			_t.TradingAccount.CurrMargin = account.CurrMargin;
-			_t.TradingAccount.FrozenCash = account.FrozenCash;
+			TradingAccount.Available = account.Available;
+			TradingAccount.CloseProfit = account.CloseProfit;
+			TradingAccount.Commission = account.Commission;
+			TradingAccount.CurrMargin = account.CurrMargin;
+			TradingAccount.FrozenCash = account.FrozenCash;
 			//_t.TradingAccount.Fund = account.PreBalance
-			_t.TradingAccount.PositionProfit = account.PositionProfit;
-			_t.TradingAccount.PreBalance = account.PreBalance;
+			TradingAccount.PositionProfit = account.PositionProfit;
+			TradingAccount.PreBalance = account.PreBalance;
 			//_t.TradingAccount.Risk = account.
-			Log(_t.TradingAccount.ToString());
+			//Log(TradingAccount.ToString());
 		}
 
 		private void OnRspPosition(object sender, ref XAPI.PositionField position, int size1, bool bIsLast)
 		{
-			var field = _t.DicPositionField.GetOrAdd(position.InstrumentID, new PositionField());
+			var field = DicPositionField.GetOrAdd(position.InstrumentID, new PositionField());
 			//field.CloseProfit = 0
 			//field.Commission = position.
 			field.Direction = DirectionType.Buy;
@@ -176,25 +197,6 @@ namespace HaiFeng
 			Log(field.ToString());
 		}
 
-		public void ReqOrderInsert(string inst, double price, int vol)
-		{
-			XAPI.OrderField order = new XAPI.OrderField
-			{
-				InstrumentID = inst,
-				Type = XAPI.OrderType.Limit,
-				Side = OrderSide.Buy,
-				Qty = vol,
-				Price = price,
-			};
-			var ret = xapi.SendOrder(ref order);
-			Log(ret);
-		}
-
-		public void ReqOrderCancel(string id)
-		{
-			var ret = xapi.CancelOrder(id);
-			Log(ret);
-		}
 
 		//行情响应
 		private void OnTick(object sender, ref DepthMarketDataNClass marketData)
@@ -214,9 +216,96 @@ namespace HaiFeng
 			Log(marketData.ToFormattedStringExchangeDateTime());
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="pFront"></param>
+		/// <returns></returns>
+		public override int ReqConnect(string pFront = @"C:\TdxW_HuaTai\Login.lua")
+		{
+			xapi.Server.Address = pFront;
+			xapi.Server.ExtInfoChar128 = pFront.Substring(0, pFront.LastIndexOf('\\') + 1);
+
+			if (_OnFrontConnected != null)//sleep以便应用是在req后收到的on响应
+				new Thread(() => { Thread.Sleep(500); _OnFrontConnected(this, new EventArgs()); }).Start();
+			return 0;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="pInvestor"></param>
+		/// <param name="pPassword"></param>
+		/// <param name="pBroker">通讯密码</param>
+		/// <returns></returns>
+		public override int ReqUserLogin(string pInvestor, string pPassword, string pBroker)
+		{
+			xapi.User.UserID = pInvestor;
+			xapi.User.Password = pPassword;
+			xapi.User.ExtInfoChar64 = pBroker;
+			xapi.Connect();
+			return 0;
+		}
+
+		public override void ReqUserLogout()
+		{
+			xapi.Disconnect();
+			xapi.Dispose();
+			xapi = null;
+		}
+
+		public override int ReqAuth(string pProductInfo, string pAuthCode)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override int ReqOrderInsert(string pInstrument, DirectionType pDirection, OffsetType pOffset, double pPrice, int pVolume, int pCustom, OrderType pType = OrderType.Limit, HedgeType pHedge = HedgeType.Speculation)
+		{
+			XAPI.OrderField order = new XAPI.OrderField
+			{
+				InstrumentID = pInstrument,
+				Type = XAPI.OrderType.Limit,
+				Side = pDirection == DirectionType.Buy ? OrderSide.Buy : OrderSide.Sell,
+				OpenClose = pOffset == OffsetType.Close ? OpenCloseType.Close : OpenCloseType.Open,
+				Price = pPrice,
+				Qty = pVolume,
+				ReserveInt32 = pCustom,
+			};
+			switch (pType)
+			{
+				case OrderType.Market:
+					order.Type = XAPI.OrderType.Market;
+					break;
+			}
+			var ret = xapi.SendOrder(ref order);
+			Log(ret);
+			return 0;// int.Parse(ret);
+		}
+
+		public override int ReqOrderAction(string pOrderId)
+		{
+			var ret = xapi.CancelOrder(pOrderId);
+			Log(ret);
+			return 0;// int.Parse(ret);
+		}
+
+		public override int ReqUserPasswordUpdate(string pOldPassword, string pNewPassword)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override TimeSpan GetExchangeTime()
+		{
+			return DateTime.Now.TimeOfDay;
+		}
+
+		public override ExchangeStatusType GetInstrumentStatus(string pExc)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
-	class tdx_q : Quote
+	class TdxQuote : Quote
 	{
 		public override bool IsLogin { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
 
@@ -246,55 +335,4 @@ namespace HaiFeng
 		}
 	}
 
-
-	class tdx_t : Trade
-	{
-		public override string TradingDay { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
-		public override bool IsLogin { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
-
-		public override TimeSpan GetExchangeTime()
-		{
-			throw new NotImplementedException();
-		}
-
-		public override ExchangeStatusType GetInstrumentStatus(string pExc)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqAuth(string pProductInfo, string pAuthCode)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqConnect(string pFront)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqOrderAction(string pOrderId)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqOrderInsert(string pInstrument, DirectionType pDirection, OffsetType pOffset, double pPrice, int pVolume, int pCustom, OrderType pType = OrderType.Limit, HedgeType pHedge = HedgeType.Speculation)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqUserLogin(string pInvestor, string pPassword, string pBroker)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override void ReqUserLogout()
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqUserPasswordUpdate(string pOldPassword, string pNewPassword)
-		{
-			throw new NotImplementedException();
-		}
-	}
 }

@@ -61,18 +61,13 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
     <Reference Include="XAPI_CSharp">
       <HintPath>Resources\tdx_dll\XAPI_CSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BindableBase.cs" />
-    <Compile Include="CTPQuote.cs" />
-    <Compile Include="CTPTrade.cs" />
-    <Compile Include="ctp_enum.cs" />
-    <Compile Include="ctp_quote.cs" />
-    <Compile Include="ctp_struct.cs" />
-    <Compile Include="ctp_trade.cs" />
     <Compile Include="EnumDefine.cs" />
     <Compile Include="EnumDescriptionAttribute.cs" />
     <Compile Include="EventArgs.cs" />
@@ -91,6 +86,7 @@
     <Compile Include="TradeField.cs" />
     <Compile Include="Trade.cs" />
     <Compile Include="TradingAccount.cs" />
+    <Compile Include="UnZip.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

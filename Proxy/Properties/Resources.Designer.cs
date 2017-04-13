@@ -59,45 +59,5 @@ namespace HaiFeng.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] ctp_quote {
-            get {
-                object obj = ResourceManager.GetObject("ctp_quote", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] ctp_trade {
-            get {
-                object obj = ResourceManager.GetObject("ctp_trade", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] thostmduserapi {
-            get {
-                object obj = ResourceManager.GetObject("thostmduserapi", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] thosttraderapi {
-            get {
-                object obj = ResourceManager.GetObject("thosttraderapi", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }
