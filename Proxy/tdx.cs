@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,20 +14,21 @@ namespace HaiFeng
 {
 	public class TdxTrade : Trade
 	{
-		TdxQuote _q = new TdxQuote();
 		XApi xapi = null;
 		private ReqQueryField queryField;
 		private Thread _trdQry = null;
 		private List<string> _sub_insts = new List<string>();// new[] { "600020" });
+
+		public ConcurrentDictionary<string, MarketData> DicTick = new ConcurrentDictionary<string, MarketData>();
 
 		public override string TradingDay { get { return DateTime.Today.ToString("yyyyMMdd"); } protected set { } }
 		public override bool IsLogin { get; protected set; }
 
 		public TdxTrade()
 		{
-			Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-			Debug.AutoFlush = true;
-			Debug.Indent();
+			//Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+			//Debug.AutoFlush = true;
+			//Debug.Indent();
 
 			xapi = new XApi(@"Tdx\Tdx_Trade_x86.dll");
 
@@ -40,8 +43,8 @@ namespace HaiFeng
 
 		private void Log(string msg)
 		{
-			Console.WriteLine(msg);
-			//Debug.WriteLine(msg);
+			//Console.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
+			Debug.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
 		}
 
 		private void OnRtnTrade(object sender, ref XAPI.TradeField trade)
@@ -130,6 +133,19 @@ namespace HaiFeng
 			}
 		}
 
+		public void ReqUnSubscribeMarketData(params string[] insts)
+		{
+			foreach (var inst in insts)
+			{
+				if (_sub_insts.IndexOf(inst) > 0)
+				{
+					_sub_insts.Remove(inst);
+					MarketData tmp;
+					DicTick.TryRemove(inst, out tmp);
+				}
+			}
+		}
+
 
 		private void OnConnect(object sender, ConnectionStatus status, ref RspUserLoginField userLogin, int size1)
 		{
@@ -140,15 +156,18 @@ namespace HaiFeng
 					_trdQry = new Thread(new ThreadStart(Qry));
 					_trdQry.Start();
 				}
-			if (!IsLogin && status == ConnectionStatus.Logined)
+			if (!IsLogin && status == ConnectionStatus.Done)//Done登录成功,否则会触发Disconnected
 			{
 				IsLogin = true;
-				_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = size1 });
+				_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = 0 });
 			}
-			else if (IsLogin && status == ConnectionStatus.Disconnected)
+			else if (status == ConnectionStatus.Disconnected)
 			{
-				IsLogin = false;
-				_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = size1 });
+				Log(Encoding.Default.GetString(userLogin.Text)); //错误信息
+				if (IsLogin)
+					_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = size1 });
+				else
+					_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = size1 });
 			}
 		}
 
@@ -203,7 +222,7 @@ namespace HaiFeng
 		{
 			if (marketData.Asks.Length < 0) return;
 
-			var tick = _q.DicTick.GetOrAdd(marketData.InstrumentID, new MarketData());
+			var tick = DicTick.GetOrAdd(marketData.InstrumentID, new MarketData());
 			tick.InstrumentID = marketData.InstrumentID;
 			tick.AskPrice = marketData.Asks[0].Price;
 			tick.AskVolume = marketData.Asks[0].Size;
@@ -214,6 +233,35 @@ namespace HaiFeng
 			//tick.UpdateTime = marketData.UpdateTime;
 			tick.UpdateMillisec = marketData.UpdateMillisec;
 			Log(marketData.ToFormattedStringExchangeDateTime());
+
+			_OnRtnTick?.Invoke(this, new TickEventArgs { Tick = tick });
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		public delegate void RtnTick(object sender, TickEventArgs e);
+
+		/// <summary>
+		/// 行情响应用
+		/// </summary>
+		internal RtnTick _OnRtnTick;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public event RtnTick OnRtnTick
+		{
+			add
+			{
+				_OnRtnTick += value;
+			}
+			remove
+			{
+				_OnRtnTick -= value;
+			}
 		}
 
 		/// <summary>
@@ -304,35 +352,4 @@ namespace HaiFeng
 			throw new NotImplementedException();
 		}
 	}
-
-	class TdxQuote : Quote
-	{
-		public override bool IsLogin { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
-
-		public override int ReqConnect(string pFront)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqSubscribeMarketData(params string[] pInstrument)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqUnSubscribeMarketData(params string[] pInstrument)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override int ReqUserLogin(string pInvestor, string pPassword, string pBroker)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override void ReqUserLogout()
-		{
-			throw new NotImplementedException();
-		}
-	}
-
 }
