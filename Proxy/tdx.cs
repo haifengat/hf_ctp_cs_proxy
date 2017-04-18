@@ -34,6 +34,7 @@ namespace HaiFeng
 
 			xapi.OnConnectionStatus = OnConnect;
 			xapi.OnRspQryTradingAccount = OnRspAccount;
+			xapi.OnRspQryInstrument = OnRspInstrument;
 			xapi.OnRspQryInvestorPosition = OnRspPosition;
 			xapi.OnRtnOrder = OnRtnOrder;
 			xapi.OnRtnTrade = OnRtnTrade;
@@ -41,10 +42,18 @@ namespace HaiFeng
 			xapi.OnRtnDepthMarketData = OnTick;
 		}
 
+		private void OnRspInstrument(object sender, ref XAPI.InstrumentField instrument, int size1, bool bIsLast)
+		{
+			DicInstrumentField[instrument.InstrumentID] = new InstrumentField
+			{
+				InstrumentID = instrument.InstrumentID,
+			};
+		}
+
 		private void Log(string msg)
 		{
-			//Console.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
-			Debug.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
+			Console.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
+			//Debug.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
 		}
 
 		private void OnRtnTrade(object sender, ref XAPI.TradeField trade)
@@ -63,6 +72,15 @@ namespace HaiFeng
 				Volume = (int)trade.Qty,
 				TradingDay = DateTime.Today.ToString("yyyyMMdd"),
 			});
+
+			//成交价计算（待测）
+			var of = DicOrderField[trade.ID];
+			of.AvgPrice = ((of.AvgPrice * (of.Volume - of.VolumeLeft)) + field.Volume * field.Price) / (of.Volume - of.VolumeLeft + field.Volume);
+			of.VolumeLeft -= field.Volume;
+			of.Status = of.VolumeLeft == 0 ? OrderStatus.Filled : OrderStatus.Partial;
+			if (of.IsLocal)
+				_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
+
 			Log(field.ToString());
 			_OnRtnTrade?.Invoke(this, new TradeArgs { Value = field });
 		}
@@ -104,9 +122,9 @@ namespace HaiFeng
 						_OnRtnCancel?.Invoke(this, new OrderArgs { Value = of });
 					break;
 				case XAPI.OrderStatus.Filled:
-					of.Status = OrderStatus.Filled;
-					if (of.IsLocal)
-						_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
+					//of.Status = OrderStatus.Filled;
+					//if (of.IsLocal)
+					//	_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
 					break;
 				case XAPI.OrderStatus.NotSent:
 					break;
@@ -124,7 +142,7 @@ namespace HaiFeng
 		}
 
 
-		public void ReqSubscribeMarketData(params string[] insts)
+		internal void ReqSubscribeMarketData(params string[] insts)
 		{
 			foreach (var inst in insts)
 			{
@@ -133,7 +151,7 @@ namespace HaiFeng
 			}
 		}
 
-		public void ReqUnSubscribeMarketData(params string[] insts)
+		internal void ReqUnSubscribeMarketData(params string[] insts)
 		{
 			foreach (var inst in insts)
 			{
@@ -150,31 +168,33 @@ namespace HaiFeng
 		private void OnConnect(object sender, ConnectionStatus status, ref RspUserLoginField userLogin, int size1)
 		{
 			Log($"{(size1 > 0 ? userLogin.ToFormattedStringLong() : status.ToString())}");
-			if (size1 == 0)
+			if (size1 != 0)
+				Log(Encoding.Default.GetString(userLogin.Text)); //错误信息
+			if (!IsLogin && status == ConnectionStatus.Done)//Done登录成功,否则会触发Disconnected
+			{
 				if (_trdQry == null)
 				{
 					_trdQry = new Thread(new ThreadStart(Qry));
 					_trdQry.Start();
 				}
-			if (!IsLogin && status == ConnectionStatus.Done)//Done登录成功,否则会触发Disconnected
-			{
 				IsLogin = true;
 				_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = 0 });
 			}
 			else if (status == ConnectionStatus.Disconnected)
 			{
-				Log(Encoding.Default.GetString(userLogin.Text)); //错误信息
 				if (IsLogin)
 					_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = size1 });
 				else
 					_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = size1 });
 			}
+
 		}
 
 		private void Qry()
 		{
 			while (true)
 			{
+				xapi.ReqQuery(QueryType.ReqQryInstrument, ref queryField);
 				xapi.ReqQuery(QueryType.ReqQryTradingAccount, ref queryField);
 				xapi.ReqQuery(QueryType.ReqQryInvestorPosition, ref queryField);
 				//查行情
@@ -216,6 +236,7 @@ namespace HaiFeng
 			Log(field.ToString());
 		}
 
+		internal Quote.RtnTick _OnRtnTick = null;
 
 		//行情响应
 		private void OnTick(object sender, ref DepthMarketDataNClass marketData)
@@ -224,45 +245,20 @@ namespace HaiFeng
 
 			var tick = DicTick.GetOrAdd(marketData.InstrumentID, new MarketData());
 			tick.InstrumentID = marketData.InstrumentID;
+			tick.LastPrice = marketData.LastPrice;
 			tick.AskPrice = marketData.Asks[0].Price;
 			tick.AskVolume = marketData.Asks[0].Size;
 			tick.BidPrice = marketData.Bids[0].Price;
 			tick.BidVolume = marketData.Bids[0].Size;
-			tick.LowerLimitPrice = marketData.LowerLimitPrice;
-			tick.UpperLimitPrice = marketData.UpperLimitPrice;
-			//tick.UpdateTime = marketData.UpdateTime;
+			tick.LowerLimitPrice = tick.LastPrice * 0.8;// marketData.LowerLimitPrice;
+			tick.UpperLimitPrice = tick.LastPrice * 1.2;// marketData.UpperLimitPrice;
+														//tick.UpdateTime = marketData.UpdateTime;
 			tick.UpdateMillisec = marketData.UpdateMillisec;
 			Log(marketData.ToFormattedStringExchangeDateTime());
 
 			_OnRtnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public delegate void RtnTick(object sender, TickEventArgs e);
-
-		/// <summary>
-		/// 行情响应用
-		/// </summary>
-		internal RtnTick _OnRtnTick;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public event RtnTick OnRtnTick
-		{
-			add
-			{
-				_OnRtnTick += value;
-			}
-			remove
-			{
-				_OnRtnTick -= value;
-			}
-		}
 
 		/// <summary>
 		/// 
@@ -350,6 +346,53 @@ namespace HaiFeng
 		public override ExchangeStatusType GetInstrumentStatus(string pExc)
 		{
 			throw new NotImplementedException();
+		}
+	}
+
+	public class TdxQuote : Quote
+	{
+		TdxTrade _t = null;
+		public TdxQuote(TdxTrade trade = null)
+		{
+			_t = trade;
+			_t._OnRtnTick += _t_OnRtnTick;
+		}
+
+		private void _t_OnRtnTick(object sender, TickEventArgs e)
+		{
+			_OnRtnTick?.Invoke(this, new TickEventArgs { Tick = e.Tick });
+		}
+
+		public override bool IsLogin { get; protected set; } = false;
+
+		public override int ReqConnect(string pFront)
+		{
+			_OnFrontConnected?.Invoke(this, new EventArgs());
+			return 0;
+		}
+
+		public override int ReqSubscribeMarketData(params string[] pInstrument)
+		{
+			_t.ReqSubscribeMarketData(pInstrument);
+			return 0;
+		}
+
+		public override int ReqUnSubscribeMarketData(params string[] pInstrument)
+		{
+			_t.ReqUnSubscribeMarketData(pInstrument);
+			return 0;
+		}
+
+		public override int ReqUserLogin(string pInvestor, string pPassword, string pBroker)
+		{
+			IsLogin = true;
+			_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = 0 });
+			return 0;
+		}
+
+		public override void ReqUserLogout()
+		{
+			_t = null;
 		}
 	}
 }

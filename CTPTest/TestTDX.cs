@@ -11,6 +11,7 @@ namespace HaiFeng
 	public class TestTDX
 	{
 		TdxTrade _tdx = null;
+		TdxQuote _q = null;
 		private string _ext;
 		private string _pwd;
 		private string _ivnestor;
@@ -65,8 +66,20 @@ namespace HaiFeng
 				new Thread(() =>
 				{
 					Thread.Sleep(1000);
-					_tdx.ReqOrderInsert("000001", DirectionType.Buy, OffsetType.Open, 8.3, 100, 1001);
+					if (_q == null)
+					{
+						_q = new TdxQuote(_tdx);
+						_q.OnRtnTick += _q_OnRtnTick;
+						_q.ReqSubscribeMarketData("000001");
+					}
+
+					//_tdx.ReqOrderInsert("000001", DirectionType.Buy, OffsetType.Open, 8.3, 100, 1001);
 				}).Start();
+		}
+
+		private void _q_OnRtnTick(object sender, TickEventArgs e)
+		{
+			Log($"{e.Tick.AskPrice}");
 		}
 
 		private void _tdx_OnFrontConnected(object sender, EventArgs e)
@@ -76,12 +89,13 @@ namespace HaiFeng
 			_tdx.ReqUserLogin(_ivnestor, _pwd, _ext);
 		}
 
-		public void Run(string user, string pwd, string ext = "")
+		public void Run(params string[] args)
 		{
-			_ivnestor = user;
-			_pwd = pwd;
-			_ext = ext;
-			_tdx.ReqConnect();
+			_ivnestor = args[0];
+			_pwd = args[1];
+			_ext = args.Length > 2 ? args[2] : "";
+			//_tdx.ReqConnect(@"C:\TdxW_HuaTai\login.lua");
+			_tdx.ReqConnect("C:\\new_tdx_zcgl\\login.lua");
 		}
 	}
 }
