@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,9 +27,9 @@ namespace HaiFeng
 
 		public TdxTrade()
 		{
-			//Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-			//Debug.AutoFlush = true;
-			//Debug.Indent();
+			Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+			Debug.AutoFlush = true;
+			Debug.Indent();
 
 			xapi = new XApi(@"Tdx\Tdx_Trade_x86.dll");
 
@@ -38,6 +39,7 @@ namespace HaiFeng
 			xapi.OnRspQryInvestorPosition = OnRspPosition;
 			xapi.OnRtnOrder = OnRtnOrder;
 			xapi.OnRtnTrade = OnRtnTrade;
+			xapi.OnRspQryTrade = OnRspTrade;
 
 			xapi.OnRtnDepthMarketData = OnTick;
 		}
@@ -52,13 +54,18 @@ namespace HaiFeng
 
 		private void Log(string msg)
 		{
-			Console.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
-			//Debug.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
+			//Console.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
+			Debug.WriteLine($"tdx|{DateTime.Now.ToString("HH:mm:ss")}|{msg}");
+		}
+		
+		private void OnRspTrade(object sender, ref XAPI.TradeField trade, int size1, bool bIsLast)
+		{
+			OnRtnTrade(sender, ref trade);
 		}
 
 		private void OnRtnTrade(object sender, ref XAPI.TradeField trade)
 		{
-			var field = DicTradeField.GetOrAdd(trade.TradeID, new TradeField
+			if (DicTradeField.TryAdd(trade.ID, new TradeField
 			{
 				Direction = trade.Side == OrderSide.Buy ? DirectionType.Buy : DirectionType.Sell,
 				//ExchangeID = trade.ExchangeID,
@@ -71,18 +78,22 @@ namespace HaiFeng
 				TradeTime = TimeSpan.FromTicks(trade.Time).ToString(),
 				Volume = (int)trade.Qty,
 				TradingDay = DateTime.Today.ToString("yyyyMMdd"),
-			});
+			}))
+			{
+				//成交价计算（待测）
+				var of = DicOrderField[trade.ID];
+				of.AvgPrice = ((of.AvgPrice * (of.Volume - of.VolumeLeft)) + (int)trade.Qty * trade.Price) / (of.Volume - of.VolumeLeft + (int)trade.Qty);
+				of.VolumeLeft -= (int)trade.Qty;
+				of.Status = of.VolumeLeft == 0 ? OrderStatus.Filled : OrderStatus.Partial;
 
-			//成交价计算（待测）
-			var of = DicOrderField[trade.ID];
-			of.AvgPrice = ((of.AvgPrice * (of.Volume - of.VolumeLeft)) + field.Volume * field.Price) / (of.Volume - of.VolumeLeft + field.Volume);
-			of.VolumeLeft -= field.Volume;
-			of.Status = of.VolumeLeft == 0 ? OrderStatus.Filled : OrderStatus.Partial;
-			if (of.IsLocal)
-				_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
+				if (!IsLogin) return;
 
-			Log(field.ToString());
-			_OnRtnTrade?.Invoke(this, new TradeArgs { Value = field });
+				if (of.IsLocal)
+					_OnRtnOrder?.Invoke(this, new OrderArgs { Value = of });
+
+				Log(trade.ToString());
+				_OnRtnTrade?.Invoke(this, new TradeArgs { Value = DicTradeField[trade.ID] });
+			}
 		}
 
 		private void OnRtnOrder(object sender, ref XAPI.OrderField order)
@@ -109,7 +120,7 @@ namespace HaiFeng
 			switch (order.Status)
 			{
 				case XAPI.OrderStatus.New:
-					if (!of.IsLocal)
+					if (!of.IsLocal && IsLogin)
 					{
 						of.IsLocal = true;
 						//this.ReqOrderCancel(of.OrderID);
@@ -138,7 +149,6 @@ namespace HaiFeng
 					break;
 			}
 			Log(of.ToString());
-			Log(order.ExchangeID);
 		}
 
 
@@ -177,8 +187,6 @@ namespace HaiFeng
 					_trdQry = new Thread(new ThreadStart(Qry));
 					_trdQry.Start();
 				}
-				IsLogin = true;
-				_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = 0 });
 			}
 			else if (status == ConnectionStatus.Disconnected)
 			{
@@ -192,11 +200,23 @@ namespace HaiFeng
 
 		private void Qry()
 		{
-			while (true)
+			Thread.Sleep(500);
+
+			xapi.ReqQuery(QueryType.ReqQryTradingAccount, ref queryField);
+			xapi.ReqQuery(QueryType.ReqQryInvestorPosition, ref queryField);
+			xapi.ReqQuery(QueryType.ReqQryOrder, ref queryField);
+			xapi.ReqQuery(QueryType.ReqQryTrade, ref queryField);
+
+			Thread.Sleep(500);
+			IsLogin = true;
+			_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = 0 });
+			while (IsLogin)
 			{
-				xapi.ReqQuery(QueryType.ReqQryInstrument, ref queryField);
+				//xapi.ReqQuery(QueryType.ReqQryInstrument, ref queryField);
 				xapi.ReqQuery(QueryType.ReqQryTradingAccount, ref queryField);
 				xapi.ReqQuery(QueryType.ReqQryInvestorPosition, ref queryField);
+				//xapi.ReqQuery(QueryType.ReqQryOrder, ref queryField);
+				xapi.ReqQuery(QueryType.ReqQryTrade, ref queryField);
 				//查行情
 				foreach (var inst in _sub_insts)
 					xapi.Subscribe(inst, "");
@@ -230,10 +250,11 @@ namespace HaiFeng
 			field.InstrumentID = position.InstrumentID;
 			//field.Margin = position
 			field.Position = (int)position.Position;
+			field.YdPosition = (int)position.HistoryPosition;
 			//field.PositionProfit = position.Position
 			//field.Price = position.
 			//field.
-			Log(field.ToString());
+			//Log(field.ToString());
 		}
 
 		internal Quote.RtnTick _OnRtnTick = null;
@@ -241,8 +262,26 @@ namespace HaiFeng
 		//行情响应
 		private void OnTick(object sender, ref DepthMarketDataNClass marketData)
 		{
-			if (marketData.Asks.Length < 0) return;
-
+			if (marketData.Asks.Length == 0 || marketData.Bids.Length == 0) return;
+			DicExcStatus[marketData.InstrumentID] = ExchangeStatusType.NoTrading;
+			switch (marketData.TradingPhase)
+			{
+				case TradingPhaseType.BeforeTrading:
+					DicExcStatus[marketData.InstrumentID] = ExchangeStatusType.BeforeTrading;
+					break;
+				case TradingPhaseType.AuctionMatch:
+					DicExcStatus[marketData.InstrumentID] = ExchangeStatusType.BeforeTrading;
+					break;
+				case TradingPhaseType.Closed:
+					DicExcStatus[marketData.InstrumentID] = ExchangeStatusType.Closed;
+					break;
+				case TradingPhaseType.Continuous:
+					DicExcStatus[marketData.InstrumentID] = ExchangeStatusType.Trading;
+					break;
+					//case TradingPhaseType.NoTrading:
+					//	DicExcStatus[marketData.InstrumentID] = ExchangeStatusType.NoTrading;
+					//	break;
+			}
 			var tick = DicTick.GetOrAdd(marketData.InstrumentID, new MarketData());
 			tick.InstrumentID = marketData.InstrumentID;
 			tick.LastPrice = marketData.LastPrice;
@@ -250,11 +289,13 @@ namespace HaiFeng
 			tick.AskVolume = marketData.Asks[0].Size;
 			tick.BidPrice = marketData.Bids[0].Price;
 			tick.BidVolume = marketData.Bids[0].Size;
-			tick.LowerLimitPrice = tick.LastPrice * 0.8;// marketData.LowerLimitPrice;
-			tick.UpperLimitPrice = tick.LastPrice * 1.2;// marketData.UpperLimitPrice;
-														//tick.UpdateTime = marketData.UpdateTime;
+			tick.LowerLimitPrice = marketData.PreClosePrice * 0.9;// marketData.LowerLimitPrice;
+			tick.UpperLimitPrice = marketData.PreClosePrice * 1.1;// marketData.UpperLimitPrice;
+																  //tick.UpdateTime = marketData.UpdateTime;
 			tick.UpdateMillisec = marketData.UpdateMillisec;
-			Log(marketData.ToFormattedStringExchangeDateTime());
+			var tm = marketData.UpdateTime.ToString();
+			tick.UpdateTime = DateTime.ParseExact((tm.Length == 5 ? "0" : "") + tm, "HHmmss", CultureInfo.InvariantCulture).ToString("HH:mm:ss");
+			//Log(marketData.ToFormattedStringExchangeDateTime());
 
 			_OnRtnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 		}
@@ -293,6 +334,8 @@ namespace HaiFeng
 
 		public override void ReqUserLogout()
 		{
+			IsLogin = false;
+			Thread.Sleep(1000);
 			xapi.Disconnect();
 			xapi.Dispose();
 			xapi = null;
@@ -345,7 +388,7 @@ namespace HaiFeng
 
 		public override ExchangeStatusType GetInstrumentStatus(string pExc)
 		{
-			throw new NotImplementedException();
+			return DicExcStatus.Count == 0 ? ExchangeStatusType.NoTrading : DicExcStatus.First().Value;
 		}
 	}
 

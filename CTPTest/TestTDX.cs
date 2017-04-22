@@ -63,23 +63,26 @@ namespace HaiFeng
 		{
 			Log($"Logged:{(e.Value == 0 ? "success" : ("error:" + e.Value))}");
 			if (e.Value == 0)//不能直接执行,需要sleep;
+			{
+				Log($"{_tdx.DicPositionField.Count}");
 				new Thread(() =>
-				{
-					Thread.Sleep(1000);
-					if (_q == null)
-					{
-						_q = new TdxQuote(_tdx);
-						_q.OnRtnTick += _q_OnRtnTick;
-						_q.ReqSubscribeMarketData("000001");
-					}
+				  {
+					  Thread.Sleep(1000);
+					  //if (_q == null)
+					  //{
+						 // _q = new TdxQuote(_tdx);
+						 // _q.OnRtnTick += _q_OnRtnTick;
+						 // _q.ReqSubscribeMarketData("000001");
+					  //}
 
-					//_tdx.ReqOrderInsert("000001", DirectionType.Buy, OffsetType.Open, 8.3, 100, 1001);
-				}).Start();
+					  _tdx.ReqOrderInsert("600149", DirectionType.Buy, OffsetType.Open, 20.0, 100, 1001);
+				  }).Start();
+			}
 		}
 
 		private void _q_OnRtnTick(object sender, TickEventArgs e)
 		{
-			Log($"{e.Tick.AskPrice}");
+			//Log($"{e.Tick.AskPrice},{e.Tick.AskVolume},{e.Tick.BidPrice},{e.Tick.BidVolume}");
 		}
 
 		private void _tdx_OnFrontConnected(object sender, EventArgs e)
