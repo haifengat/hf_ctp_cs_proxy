@@ -136,6 +136,7 @@ namespace HaiFeng
 		{
 			this.IsLogin = false;
 			_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = nReason });
+			SetCallBack();
 		}
 
 		private void CTPOnRspError(ref CThostFtdcRspInfoField pRspInfo, int nRequestID, bool bIsLast)

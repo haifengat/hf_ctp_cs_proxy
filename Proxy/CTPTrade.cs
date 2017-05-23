@@ -80,6 +80,7 @@ namespace HaiFeng
 		{
 			this.IsLogin = false;
 			_OnRspUserLogout?.Invoke(this, new IntEventArgs { Value = nReason });
+			SetCallBack();
 		}
 
 		private void CTPOnRspUserLogin(ref CThostFtdcRspUserLoginField pRspUserLogin, ref CThostFtdcRspInfoField pRspInfo, int nRequestID, bool bIsLast)
