@@ -51,7 +51,7 @@ namespace HaiFeng
 		/// </summary>
 		/// <param name="pFront"></param>
 		/// <returns></returns>
-		public abstract int ReqConnect(string pFront);
+		public abstract int ReqConnect(params string[] pFront);
 
 		/// <summary>
 		/// 登录

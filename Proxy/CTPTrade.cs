@@ -675,9 +675,10 @@ namespace HaiFeng
 			return (int)_t.ReqAuthenticate(_broker, _investor, pProductInfo, pAuthCode);
 		}
 
-		public override int ReqConnect(string pFront)
+		public override int ReqConnect(params string[] pFront)
 		{
-			_t.RegisterFront(pFront);
+			foreach(var addr in pFront)
+			_t.RegisterFront(addr);
 			_t.SubscribePrivateTopic(THOST_TE_RESUME_TYPE.THOST_TERT_RESTART);
 			_t.SubscribePublicTopic(THOST_TE_RESUME_TYPE.THOST_TERT_RESTART);
 			return (int)_t.Init();

@@ -164,9 +164,10 @@ namespace HaiFeng
 
 		public override bool IsLogin { get; protected set; }
 
-		public override int ReqConnect(string pFront)
+		public override int ReqConnect(params string[] pFront)
 		{
-			_q.RegisterFront(pFront);
+			foreach(var addr in pFront)
+			_q.RegisterFront(addr);
 			//_q.Init();
 			return (int)_q.Init();
 			//return (int)_q.Join(); //会造成阻塞

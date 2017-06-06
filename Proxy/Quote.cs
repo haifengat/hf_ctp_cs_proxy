@@ -146,7 +146,7 @@ namespace HaiFeng
 		/// 连接
 		/// </summary>
 		/// <returns></returns>
-		public abstract int ReqConnect(string pFront);
+		public abstract int ReqConnect(params string[] pFront);
 
 		/// <summary>
 		/// 登录[重连时自动订阅DicTick.Keys中的合约]
