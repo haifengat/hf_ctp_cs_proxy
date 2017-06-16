@@ -47,6 +47,11 @@ namespace HaiFeng
 			this.SetCallBack();
 		}
 
+		/// <summary>
+		/// 结算信息
+		/// </summary>
+		public string SettleInfo { get; private set; }
+
 		Delegate AddDele(Delegate d) { _listDele.Add(d); return d; }
 
 		//响应注册
@@ -55,6 +60,7 @@ namespace HaiFeng
 			_t.SetOnFrontConnected((DeleOnFrontConnected)AddDele(new DeleOnFrontConnected(CTPOnFrontConnected)));
 			_t.SetOnRspUserLogin((DeleOnRspUserLogin)AddDele(new DeleOnRspUserLogin(CTPOnRspUserLogin)));
 			_t.SetOnRspSettlementInfoConfirm((DeleOnRspSettlementInfoConfirm)AddDele(new DeleOnRspSettlementInfoConfirm(CTPOnRspSettlementInfoConfirm)));
+			_t.SetOnRspQrySettlementInfo((DeleOnRspQrySettlementInfo)AddDele(new DeleOnRspQrySettlementInfo(CTPOnRspQrySettleInfo)));
 			_t.SetOnFrontDisconnected((DeleOnFrontDisconnected)AddDele(new DeleOnFrontDisconnected(CTPOnFrontDisconnected)));
 			_t.SetOnRspQryInstrument((DeleOnRspQryInstrument)AddDele(new DeleOnRspQryInstrument(CTPOnRspQryInstrument)));
 			_t.SetOnRspQryInvestorPosition((DeleOnRspQryInvestorPosition)AddDele(new DeleOnRspQryInvestorPosition(CTPOnRspQryInvestorPosition)));
@@ -100,8 +106,7 @@ namespace HaiFeng
 				//_orderref = pRspUserLogin.MaxOrderRef;
 				_broker = pRspUserLogin.BrokerID;
 				_investor = pRspUserLogin.UserID;
-
-				_t.ReqSettlementInfoConfirm(_broker, _investor);
+				_t.ReqQrySettlementInfo(_broker, _investor);
 			}
 			else
 			{
@@ -112,6 +117,15 @@ namespace HaiFeng
 		private void CTPOnRspSettlementInfoConfirm(ref CThostFtdcSettlementInfoConfirmField pSettlementInfoConfirm, ref CThostFtdcRspInfoField pRspInfo, int nRequestID, bool bIsLast)
 		{
 			_t.ReqQryInstrument();
+		}
+		private void CTPOnRspQrySettleInfo(ref CThostFtdcSettlementInfoField pSettlementInfo, ref CThostFtdcRspInfoField pRspInfo, int nRequestID, bool bIsLast)
+		{
+			this.SettleInfo += pSettlementInfo.Content;
+			if (bIsLast)
+			{
+				Thread.Sleep(1100); //查询流控
+				_t.ReqSettlementInfoConfirm(_broker, _investor);
+			}
 		}
 
 		private void CTPOnRtnInstrumentStatus(ref CThostFtdcInstrumentStatusField pInstrumentStatus)
@@ -279,6 +293,11 @@ namespace HaiFeng
 			} while ((DateTime.Now - _rtnOrderTime).TotalSeconds <= 1);//  cnt < DicOrderField.Count); //等待rtn响应完成
 
 			//20170113 _excTime = DateTime.MinValue;  //用于取交易所时间
+
+			_t.ReqQryInvestorPosition();
+			Thread.Sleep(1100);
+			_t.ReqQryTradingAccount();
+			Thread.Sleep(1100);
 
 			IsLogin = true;
 			_OnRspUserLogin?.Invoke(this, new IntEventArgs { Value = 0 });

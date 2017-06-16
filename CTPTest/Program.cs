@@ -14,6 +14,8 @@ namespace HaiFeng
 			tt.Run();
 			Console.WriteLine("Press any key to continue . . . ");
 			Console.ReadKey(true);
+			tt.ShowInfo();
+			Console.ReadKey(true);
 
 			TestQuote tq = new TestQuote();
 			tq.Run();

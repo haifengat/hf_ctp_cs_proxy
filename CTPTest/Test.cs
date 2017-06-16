@@ -128,10 +128,18 @@ namespace HaiFeng
 			_t.ReqUserLogin(_ivnestor, "1", _broker);
 		}
 
+		public void ShowInfo()
+		{
+			Log(_t.TradingAccount.ToString());
+			foreach (var posi in _t.DicPositionField.Values)
+				Log(posi.ToString());
+		}
+
 		private void _t_OnRspUserLogin(object sender, IntEventArgs e)
 		{
 			if (e.Value == 0)
 			{
+				Log(_t.SettleInfo);//显示结算信息
 				Log("登录成功");
 				_t.ReqOrderInsert("rb1705", DirectionType.Sell, OffsetType.Open, 3200, 1, 1000);
 			}
