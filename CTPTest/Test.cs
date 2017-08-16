@@ -48,7 +48,7 @@ namespace HaiFeng
 			if (e.Value == 0)
 			{
 				Log($"登录成功:{_investor}");
-				_q.ReqSubscribeMarketData("rb1705", "cu1705");
+				_q.ReqSubscribeMarketData("rb1801", "cu1801");
 			}
 			else
 			{
@@ -61,6 +61,7 @@ namespace HaiFeng
 		private void _q_OnRtnTick(object sender, TickEventArgs e)
 		{
 			Log($"{e.Tick.InstrumentID}\t{e.Tick.LastPrice}");
+			_q.ReqUnSubscribeMarketData(e.Tick.InstrumentID);
 		}
 
 		private void _q_OnRspUserLogout(object sender, IntEventArgs e)
@@ -77,7 +78,7 @@ namespace HaiFeng
 	class TestTrade
 	{
 		CTPTrade _t = null;
-		string _broker = "9999", _ivnestor = "008105";
+		string _broker = "9999", _ivnestor = "008109", _pwd = "1";
 
 		public TestTrade()
 		{
@@ -125,7 +126,7 @@ namespace HaiFeng
 
 		private void _t_OnFrontConnected(object sender, EventArgs e)
 		{
-			_t.ReqUserLogin(_ivnestor, "1", _broker);
+			_t.ReqUserLogin(_ivnestor, _pwd, _broker);
 		}
 
 		public void ShowInfo()

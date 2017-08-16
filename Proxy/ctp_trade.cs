@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace HaiFeng
 {
-	public class ctp_trade
+	public class CTP_trade
 	{
 		#region Dll Load /UnLoad
 		/// <summary>
@@ -63,7 +63,7 @@ namespace HaiFeng
 		IntPtr _handle = IntPtr.Zero, _api = IntPtr.Zero, _spi = IntPtr.Zero;
 		delegate IntPtr Create();
 		delegate IntPtr DeleRegisterSpi(IntPtr api, IntPtr pSpi);
-		public ctp_trade(string pFile)
+		public CTP_trade(string pFile)
 		{
 			string curPath = Environment.CurrentDirectory;
 			Environment.CurrentDirectory = new FileInfo(pFile).DirectoryName;

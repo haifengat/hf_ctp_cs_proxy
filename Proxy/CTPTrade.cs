@@ -9,13 +9,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HaiFeng.Properties;
-using static HaiFeng.ctp_trade;
+using static HaiFeng.CTP_trade;
 
 namespace HaiFeng
 {
 	public class CTPTrade : Trade
 	{
-		ctp_trade _t = null;
+		CTP_trade _t = null;
 		private int _session = 0;
 		private int _front = 0;
 		private string _broker = string.Empty;
@@ -43,7 +43,7 @@ namespace HaiFeng
 				if (!File.Exists(files[i]) || bytes.Length != new FileInfo(files[i]).Length)
 					File.WriteAllBytes(files[i], bytes);
 			}
-			_t = new ctp_trade("./ctp_dll/ctp_trade.dll");
+			_t = new CTP_trade("./ctp_dll/ctp_trade.dll");
 			this.SetCallBack();
 		}
 
@@ -118,6 +118,7 @@ namespace HaiFeng
 		{
 			_t.ReqQryInstrument();
 		}
+
 		private void CTPOnRspQrySettleInfo(ref CThostFtdcSettlementInfoField pSettlementInfo, ref CThostFtdcRspInfoField pRspInfo, int nRequestID, bool bIsLast)
 		{
 			this.SettleInfo += pSettlementInfo.Content;
@@ -165,14 +166,13 @@ namespace HaiFeng
 				VolumeMultiple = pInstrument.VolumeMultiple,
 				MaxOrderVolume = pInstrument.MaxLimitOrderVolume,
 			};
-			Exchange exc;
-			if (Enum.TryParse(pInstrument.ExchangeID, out exc))
+			if (Enum.TryParse(pInstrument.ExchangeID, out Exchange exc))
 				field.ExchangeID = exc;
 			DicInstrumentField.TryAdd(pInstrument.InstrumentID, field);
 			if (bIsLast)
 			{
 				//查询流控
-				_tIsLogin = new Thread(qryPosiAccount);
+				_tIsLogin = new Thread(QryPosiAccount);
 				_tIsLogin.Start();
 				//Thread.Sleep(1100);
 				//_t.ReqQryTradingAccount(_broker, _investor);
@@ -283,7 +283,7 @@ namespace HaiFeng
 			}
 		}
 
-		void qryPosiAccount()
+		void QryPosiAccount()
 		{
 			_rtnOrderTime = DateTime.Now;
 			//当rtnorder数量过大时,需等待n秒响应时间.避免在旧的rtnorder未响应完成时进行接口操作导致未知错误.
@@ -316,7 +316,6 @@ namespace HaiFeng
 
 		private void CTPOnRtnOrder(ref CThostFtdcOrderField pOrder)
 		{
-			TimeSpan ts;
 			if (!IsLogin)
 				_rtnOrderTime = DateTime.Now;   //登录前接收所有旧的 order
 
@@ -325,10 +324,9 @@ namespace HaiFeng
 			string id = string.Format("{0}|{1}|{2}", pOrder.SessionID, pOrder.FrontID, pOrder.OrderRef);
 			//_dicLocalidSfrId.TryAdd(pOrder.OrderLocalID, id);//防止因此项未赋值,导致成交响应里无法更新
 
-			long tmp;
 			if (DicOrderField.TryAdd(id, new OrderField
 			{
-				Custom = (int)(long.TryParse(pOrder.OrderRef, out tmp) ? tmp % 1000000 : 0),
+				Custom = (int)(long.TryParse(pOrder.OrderRef, out long tmp) ? tmp % 1000000 : 0),
 				//修复: 值为null会导致界面显示错误
 				InsertTime = string.IsNullOrEmpty(pOrder.InsertTime) ? DateTime.Now.ToString("HH:mm:ss") : pOrder.InsertTime,
 				InstrumentID = pOrder.InstrumentID,
@@ -360,7 +358,7 @@ namespace HaiFeng
 				//修复: 值为null会导致界面显示错误
 				f.InsertTime = string.IsNullOrEmpty(pOrder.InsertTime) ? DateTime.Now.ToString("HH:mm:ss") : pOrder.InsertTime;
 
-				if (_excTime == DateTime.MinValue && TimeSpan.TryParse(f.InsertTime, out ts)) //首次的onrtnorder时间有问题,故放在此处更新_exctime
+				if (_excTime == DateTime.MinValue && TimeSpan.TryParse(f.InsertTime, out TimeSpan ts)) //首次的onrtnorder时间有问题,故放在此处更新_exctime
 				{
 					_excTime = DateTime.Today.Add(ts);
 					_sw.Restart();
@@ -407,9 +405,8 @@ namespace HaiFeng
 
 				if (_dicSysidSfrId.TryAdd(pOrder.OrderSysID, id))
 				{
-					List<CThostFtdcTradeField> list;
 					//成交先至,则在此处再调成交
-					if (_sysidTrade.TryGetValue(pOrder.OrderSysID, out list))
+					if (_sysidTrade.TryGetValue(pOrder.OrderSysID, out List<CThostFtdcTradeField> list))
 					{
 						foreach (CThostFtdcTradeField t1 in list)
 						{
@@ -428,9 +425,7 @@ namespace HaiFeng
 			if (!IsLogin)
 				_rtnOrderTime = DateTime.Now;
 
-			string id;
-			OrderField of = null;
-			if (!(_dicSysidSfrId.TryGetValue(pTrade.OrderSysID, out id) && DicOrderField.TryGetValue(id, out of)))
+			if (!(_dicSysidSfrId.TryGetValue(pTrade.OrderSysID, out string id) && DicOrderField.TryGetValue(id, out OrderField of)))
 			{
 				CThostFtdcTradeField fReTrade = pTrade;
 				var list = _sysidTrade.GetOrAdd(pTrade.OrderSysID, new List<CThostFtdcTradeField>());
@@ -455,8 +450,7 @@ namespace HaiFeng
 				Volume = pTrade.Volume,
 				SysID = pTrade.OrderSysID,
 			};
-			Exchange exc;
-			if (Enum.TryParse(pTrade.ExchangeID, out exc))
+			if (Enum.TryParse(pTrade.ExchangeID, out Exchange exc))
 				f.ExchangeID = exc;
 			if (DicTradeField.TryAdd(f.TradeID, f))// string.Format("{0}_{1}", f.TradeID, f.Direction), f))
 			{
@@ -541,11 +535,10 @@ namespace HaiFeng
 			{
 				string id = string.Format("{0}|{1}|{2}", _session, _front, pInputOrder.OrderRef);
 
-				int tmp;
 				if (DicOrderField.TryAdd(id, new OrderField
 				{
-					Custom = int.TryParse(pInputOrder.OrderRef, out tmp) ? tmp % 1000000 : 0,// pOrder.OrderRef.Length <= 6 ? string.Empty : pOrder.OrderRef.Substring(pOrder.OrderRef.Length - 6),
-																							 //InsertTime = DicOrderField.Max(n => n.Value.InsertTime) ?? DateTime.Now.ToString("HH:mm:ss"),
+					Custom = int.TryParse(pInputOrder.OrderRef, out int tmp) ? tmp % 1000000 : 0,// pOrder.OrderRef.Length <= 6 ? string.Empty : pOrder.OrderRef.Substring(pOrder.OrderRef.Length - 6),
+																								 //InsertTime = DicOrderField.Max(n => n.Value.InsertTime) ?? DateTime.Now.ToString("HH:mm:ss"),
 					InstrumentID = pInputOrder.InstrumentID,
 					InsertTime = DateTime.Now.ToString("HH:mm:ss"), //为null会导致界面显示错误
 																	//SysID = string.Empty,        //为null会导致界面显示错误
@@ -562,9 +555,9 @@ namespace HaiFeng
 					StatusMsg = pRspInfo.ErrorID + "|" + pRspInfo.ErrorMsg,
 					Direction = pInputOrder.Direction == TThostFtdcDirectionType.THOST_FTDC_D_Buy ? DirectionType.Buy : DirectionType.Sell,
 					Hedge = (TThostFtdcHedgeFlagType)pInputOrder.CombHedgeFlag[0] == TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation ? HedgeType.Speculation :
-						(TThostFtdcHedgeFlagType)pInputOrder.CombHedgeFlag[0] == TThostFtdcHedgeFlagType.THOST_FTDC_HF_Arbitrage ? HedgeType.Arbitrage : HedgeType.Hedge,
+		(TThostFtdcHedgeFlagType)pInputOrder.CombHedgeFlag[0] == TThostFtdcHedgeFlagType.THOST_FTDC_HF_Arbitrage ? HedgeType.Arbitrage : HedgeType.Hedge,
 					Offset = (TThostFtdcOffsetFlagType)pInputOrder.CombOffsetFlag[0] == TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open ? OffsetType.Open :
-						(TThostFtdcOffsetFlagType)pInputOrder.CombOffsetFlag[0] == TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday ? OffsetType.CloseToday : OffsetType.Close,
+		(TThostFtdcOffsetFlagType)pInputOrder.CombOffsetFlag[0] == TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday ? OffsetType.CloseToday : OffsetType.Close,
 				}))
 				{
 					string it = DicOrderField.Max(n => n.Value.InsertTime);
@@ -593,10 +586,9 @@ namespace HaiFeng
 			if (IsLogin)// && DicOrderField.TryGetValue(id, out of))// && of.Status != OrderStatus.Canceled && of.IsLocal)
 			{
 				var pOrder = pInputOrder;
-				int tmp;
 				of = new OrderField
 				{
-					Custom = int.TryParse(pOrder.OrderRef, out tmp) ? tmp % 1000000 : 0,
+					Custom = int.TryParse(pOrder.OrderRef, out int tmp) ? tmp % 1000000 : 0,
 					InstrumentID = pOrder.InstrumentID,
 					InsertTime = DateTime.Now.ToString("HH:mm:ss"), //为null会导致界面显示错误
 																	//SysID = string.Empty,        //为null会导致界面显示错误
@@ -613,9 +605,9 @@ namespace HaiFeng
 					StatusMsg = pRspInfo.ErrorID + "|" + pRspInfo.ErrorMsg,
 					Direction = pOrder.Direction == TThostFtdcDirectionType.THOST_FTDC_D_Buy ? DirectionType.Buy : DirectionType.Sell,
 					Hedge = (TThostFtdcHedgeFlagType)pOrder.CombHedgeFlag[0] == TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation ? HedgeType.Speculation :
-						(TThostFtdcHedgeFlagType)pOrder.CombHedgeFlag[0] == TThostFtdcHedgeFlagType.THOST_FTDC_HF_Arbitrage ? HedgeType.Arbitrage : HedgeType.Hedge,
+		(TThostFtdcHedgeFlagType)pOrder.CombHedgeFlag[0] == TThostFtdcHedgeFlagType.THOST_FTDC_HF_Arbitrage ? HedgeType.Arbitrage : HedgeType.Hedge,
 					Offset = (TThostFtdcOffsetFlagType)pOrder.CombOffsetFlag[0] == TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open ? OffsetType.Open :
-						(TThostFtdcOffsetFlagType)pOrder.CombOffsetFlag[0] == TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday ? OffsetType.CloseToday : OffsetType.Close,
+		(TThostFtdcOffsetFlagType)pOrder.CombOffsetFlag[0] == TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday ? OffsetType.CloseToday : OffsetType.Close,
 				};
 				of.Status = OrderStatus.Error;
 				of.StatusMsg = string.Format("[RtnErrorID:{0}]{1}", pRspInfo.ErrorID, pRspInfo.ErrorMsg);
@@ -629,8 +621,7 @@ namespace HaiFeng
 			if (pRspInfo.ErrorID == 0) return;
 
 			string id = string.Format("{0}|{1}|{2}", pInputOrderAction.SessionID, pInputOrderAction.FrontID, pInputOrderAction.OrderRef);
-			OrderField of;
-			if (IsLogin && DicOrderField.TryGetValue(id, out of))
+			if (IsLogin && DicOrderField.TryGetValue(id, out OrderField of))
 			{
 				_OnRtnErrCancel?.Invoke(this, new ErrOrderArgs { ErrorID = pRspInfo.ErrorID, ErrorMsg = pRspInfo.ErrorMsg, Value = of });
 			}
@@ -641,8 +632,7 @@ namespace HaiFeng
 			if (pRspInfo.ErrorID == 0) return;
 
 			string id = string.Format("{0}|{1}|{2}", pOrderAction.SessionID, pOrderAction.FrontID, pOrderAction.OrderRef);
-			OrderField of;
-			if (IsLogin && DicOrderField.TryGetValue(id, out of))
+			if (IsLogin && DicOrderField.TryGetValue(id, out OrderField of))
 			{
 				_OnRtnErrCancel?.Invoke(this, new ErrOrderArgs { ErrorID = pRspInfo.ErrorID, ErrorMsg = pRspInfo.ErrorMsg, Value = of });
 			}
@@ -683,8 +673,7 @@ namespace HaiFeng
 		public override ExchangeStatusType GetInstrumentStatus(string pExc)
 		{
 			var instField = DicInstrumentField[pExc];
-			ExchangeStatusType excStatus = default(ExchangeStatusType);
-			if (DicExcStatus.TryGetValue(instField.ProductID, out excStatus) || DicExcStatus.TryGetValue(instField.ExchangeID.ToString(), out excStatus) || DicExcStatus.TryGetValue(instField.InstrumentID, out excStatus))
+			if (DicExcStatus.TryGetValue(instField.ProductID, out ExchangeStatusType excStatus) || DicExcStatus.TryGetValue(instField.ExchangeID.ToString(), out excStatus) || DicExcStatus.TryGetValue(instField.InstrumentID, out excStatus))
 				return excStatus;
 			return ExchangeStatusType.Closed;
 		}
@@ -721,8 +710,7 @@ namespace HaiFeng
 
 		public override int ReqOrderAction(string pOrderId)
 		{
-			OrderField of;
-			if (!DicOrderField.TryGetValue(pOrderId, out of))
+			if (!DicOrderField.TryGetValue(pOrderId, out OrderField of))
 			{
 				_OnRtnError?.Invoke(this, new ErrorEventArgs
 				{

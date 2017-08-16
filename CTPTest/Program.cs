@@ -13,18 +13,18 @@ namespace HaiFeng
 			TestTrade tt = new TestTrade();
 			tt.Run();
 			Console.WriteLine("Press any key to continue . . . ");
-			Console.ReadKey(true);
+			Console.Read(); 
 			tt.ShowInfo();
-			Console.ReadKey(true);
+			Console.Read();
 
 			TestQuote tq = new TestQuote();
 			tq.Run();
 			Console.WriteLine("Press any key to continue . . . ");
-			Console.ReadKey(true);
+			Console.Read();
 
 			tt.Release();
 			tq.Release();
-			Console.ReadKey(true);
+			Console.Read();
 		}
 	}
 }

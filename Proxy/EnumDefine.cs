@@ -146,7 +146,7 @@ namespace HaiFeng
 	public enum ExchangeStatusType
 	{
 		/// <summary>
-		/// 开盘前
+		/// 开盘前(竞价结束)
 		/// </summary>
 		[EnumDescription("开盘前")]
 		BeforeTrading,

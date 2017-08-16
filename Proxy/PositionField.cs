@@ -53,17 +53,7 @@ namespace HaiFeng
 		[DisplayName("今仓")]
 		public int TdPosition { get { return _TdPosition; } set { SetProperty(ref _TdPosition, value); } }
 		private int _TdPosition;
-
-		///// <summary>
-		///// 可平量
-		///// </summary>
-		//public int PositionClose;
-
-		/// <summary>
-		/// 占用保证金
-		/// </summary>
-		//public double Margin; //无此项便不再用查询
-
+		
 		/// <summary>
 		/// 投机套保标志
 		/// </summary>

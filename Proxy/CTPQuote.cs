@@ -6,13 +6,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using HaiFeng.Properties;
-using static HaiFeng.ctp_quote;
+using static HaiFeng.CTP_quote;
 
 namespace HaiFeng
 {
 	public class CTPQuote : Quote
 	{
-		ctp_quote _q = null;
+		CTP_quote _q = null;
 		private readonly List<Delegate> _listDele = new List<Delegate>();
 
 		public CTPQuote()
@@ -27,7 +27,7 @@ namespace HaiFeng
 				if (!File.Exists(files[i]) || bytes.Length != new FileInfo(files[i]).Length)
 					File.WriteAllBytes(files[i], bytes);
 			}
-			_q = new ctp_quote("./ctp_dll/ctp_quote.dll");
+			_q = new CTP_quote("./ctp_dll/ctp_quote.dll");
 			SetCallBack();
 		}
 
@@ -119,9 +119,15 @@ namespace HaiFeng
 			tick.UpperLimitPrice = f.UpperLimitPrice;
 			tick.LowerLimitPrice = f.LowerLimitPrice;
 
+			//避免突然的波动
+			bool crack = false;
+			if (tick.LastPrice != 0)//非首tick
+			{
+				crack = Math.Abs(this.DicTick[tick.InstrumentID].LastPrice - tick.LastPrice) > 100 * (f.AskPrice1 - f.BidPrice1);
+			}
 			this.DicTick[tick.InstrumentID] = tick;
 
-			if (_OnRtnTick == null) return;
+			if (_OnRtnTick == null || crack) return;//剧烈波动过滤掉
 			_OnRtnTick(this, new TickEventArgs
 			{
 				Tick = tick
@@ -166,8 +172,8 @@ namespace HaiFeng
 
 		public override int ReqConnect(params string[] pFront)
 		{
-			foreach(var addr in pFront)
-			_q.RegisterFront(addr);
+			foreach (var addr in pFront)
+				_q.RegisterFront(addr);
 			//_q.Init();
 			return (int)_q.Init();
 			//return (int)_q.Join(); //会造成阻塞
@@ -175,24 +181,22 @@ namespace HaiFeng
 
 		public override int ReqSubscribeMarketData(params string[] pInstrument)
 		{
-			int size = Marshal.SizeOf(typeof(IntPtr));
-			IntPtr insts = Marshal.AllocHGlobal(size * pInstrument.Length);
-			var tmp = insts;
-			for (int i = 0; i < pInstrument.Length; i++, tmp += size)
+			IntPtr insts = Marshal.AllocHGlobal(IntPtr.Size * pInstrument.Length);
+			for (int i = 0; i < pInstrument.Length; i++)
 			{
-				Marshal.StructureToPtr(Marshal.StringToHGlobalAnsi(pInstrument[i]), tmp, false);
+				var pp = Marshal.StringToHGlobalAnsi(pInstrument[i]);
+				Marshal.WriteIntPtr(insts + IntPtr.Size * i, pp);
 			}
 			return (int)_q.SubscribeMarketData(insts, pInstrument.Length);
 		}
 
 		public override int ReqUnSubscribeMarketData(params string[] pInstrument)
 		{
-			int size = Marshal.SizeOf(typeof(IntPtr));
-			IntPtr insts = Marshal.AllocHGlobal(size * pInstrument.Length);
-			var tmp = insts;
-			for (int i = 0; i < pInstrument.Length; i++, tmp += size)
+			IntPtr insts = Marshal.AllocHGlobal(IntPtr.Size * pInstrument.Length);
+			for (int i = 0; i < pInstrument.Length; i++)
 			{
-				Marshal.StructureToPtr(pInstrument[i], tmp, false);
+				var pp = Marshal.StringToHGlobalAnsi(pInstrument[i]);
+				Marshal.WriteIntPtr(insts + IntPtr.Size * i, pp);
 			}
 			return (int)_q.UnSubscribeMarketData(insts, pInstrument.Length);
 		}
