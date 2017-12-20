@@ -358,7 +358,7 @@ namespace HaiFeng
 				//修复: 值为null会导致界面显示错误
 				f.InsertTime = string.IsNullOrEmpty(pOrder.InsertTime) ? DateTime.Now.ToString("HH:mm:ss") : pOrder.InsertTime;
 
-				if (_excTime == DateTime.MinValue && TimeSpan.TryParse(f.InsertTime, out TimeSpan ts)) //首次的onrtnorder时间有问题,故放在此处更新_exctime
+				if (_excTime == DateTime.MinValue && this.IsLogin && TimeSpan.TryParse(f.InsertTime, out TimeSpan ts)) //首次的onrtnorder时间有问题,故放在此处更新_exctime//20171211:用restart模式要在登录后再处理
 				{
 					_excTime = DateTime.Today.Add(ts);
 					_sw.Restart();
